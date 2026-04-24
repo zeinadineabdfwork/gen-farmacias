@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#004D3B">
+<title>FarmaFind — Portal da Farmácia</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Supabase JS para autenticação -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<style>
+:root {
+  --primary:#007A5E; --primary-light:#E8F5F1; --primary-mid:#3DAB89; --primary-dark:#004D3B;
+  --danger:#DC3545; --danger-light:#FDECEA;
+  --success:#198754; --success-light:#D1E7DD;
+  --warning:#E67E22; --warning-light:#FEF3E2;
+  --text:#0D1B2A; --text-muted:#6B7C93; --text-light:#A0AEBA;
+  --border:#E4EAF0; --bg:#F5F8FA; --card:#FFFFFF;
+  --radius:14px; --radius-sm:8px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.06); --shadow:0 4px 20px rgba(0,0,0,.08); --shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --t:all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{
+  box-sizing:border-box;
+  margin:0;padding:0;
+}
+body{
+  font-family:'Sora',sans-serif;
+background:var(--bg);color:var(--text);
+line-height:1.55;
+-webkit-font-smoothing:antialiased;
+}
+
+/* ── LOGIN SCREEN ─────────────────────────────────────────── */
+#loginScreen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(140deg,var(--primary-dark),var(--primary));
+}
+.login-card{
+  background:white;
+  border-radius:20px;
+  padding:2.5rem;
+  width:100%;
+  max-width:400px;
+  box-shadow:var(--shadow-lg);
+}
+.login-logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:2rem;
+  justify-content:center;
+}
+.login-logo-mark{
+  width:44px;
+  height:44px;
+  background:var(--primary);
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.login-logo-mark svg{
+  width:24px;height:24px;
+  fill:white;
+}
+.login-logo-name{
+  font-family:'DM Serif Display',serif;
+  font-size:1.8rem;
+  color:var(--primary);
+}
+.login-logo-name span
+{color:var(--primary-mid);
+}
+.login-sub{
+  text-align:center;
+  font-size:.85rem;
+  color:var(--text-muted);
+  margin-bottom:2rem;
+}
+.login-field{
+  margin-bottom:1rem;
+}
+.login-label{
+  display:block;
+  font-size:.78rem;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:5px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.login-input{
+  width:100%;
+  padding:12px 14px;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  font-family:'Sora',sans-serif;
+  font-size:.92rem;
+  color:var(--text);
+  background:var(--bg);
+  outline:none;
+  transition:var(--t);
+}
+.login-input:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px rgba(0,122,94,.1);}
+.btn-login{width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:var(--t);margin-top:.5rem;}
+.btn-login:hover{background:var(--primary-dark);}
+.btn-login:disabled{opacity:.6;cursor:not-allowed;}
+.login-error{background:var(--danger-light);border:1px solid var(--danger);border-radius:var(--radius-sm);padding:10px 14px;font-size:.82rem;color:var(--danger);margin-bottom:1rem;display:none;}
+
+/* ── ADMIN LAYOUT ─────────────────────────────────────────── */
+#adminApp{display:none;min-height:100vh;}
+.admin-grid{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
+.admin-sidebar{background:var(--primary-dark);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.admin-logo{font-family:'DM Serif Display',serif;font-size:1.1rem;color:rgba(255,255,255,.9);margin-bottom:1.5rem;padding:0 8px;}
+.admin-logo span{color:var(--primary-mid);}
+.admin-profile{background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:1rem;display:flex;align-items:center;gap:10px;}
+.admin-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary-mid);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.88rem;color:var(--primary-dark);flex-shrink:0;}
+.admin-name{font-size:.8rem;font-weight:700;color:white;}
+.admin-role{font-size:.7rem;color:rgba(255,255,255,.5);}
+.admin-nav-item{padding:10px 12px;border-radius:9px;color:rgba(255,255,255,.65);cursor:pointer;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:10px;transition:var(--t);border:none;background:none;width:100%;text-align:left;}
+.admin-nav-item:hover{background:rgba(255,255,255,.1);color:white;}
+.admin-nav-item.active{background:var(--primary-mid);color:var(--primary-dark);}
+.admin-nav-item svg{width:16px;height:16px;flex-shrink:0;}
+.admin-nav-divider{height:1px;background:rgba(255,255,255,.1);margin:8px 4px;}
+.notif-count{margin-left:auto;background:var(--danger);color:white;font-size:.65rem;font-weight:800;padding:1px 6px;border-radius:100px;}
+.btn-logout{margin-top:auto;padding:9px 12px;border-radius:9px;color:rgba(255,255,255,.5);cursor:pointer;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:8px;transition:var(--t);border:none;background:none;width:100%;}
+.btn-logout:hover{background:rgba(220,53,69,.2);color:#FF8888;}
+.btn-logout svg{width:14px;height:14px;}
+
+.btn-recover{margin-top:auto;
+  padding:9px 12px;
+  border-radius:9px;
+  color:rgba(0, 122, 94, 1);
+  cursor:pointer;font-size:.78rem;
+  font-weight:600;
+  display:flex;
+  justify-self: center;
+  align-items:center;
+  gap:8px;
+  justify-content: center;
+  transition:var(--t);
+  border:none;
+  background: none;
+  width:50%;
+}
+.btn-recover:hover{
+  background:none;
+  color: rgba(0, 122, 94, 0.7);
+}
+.btn-recover svg{
+  width:14px;
+  height:14px;
+}
+
+.admin-main{padding:2rem;background:var(--bg);overflow-y:auto;}
+.admin-page-title{font-family:'DM Serif Display',serif;font-size:1.8rem;margin-bottom:.25rem;}
+.admin-page-sub{font-size:.85rem;color:var(--text-muted);margin-bottom:1.5rem;}
+
+/* stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+.stat-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem;}
+.stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.stat-icon svg{width:18px;height:18px;}
+.stat-label{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.stat-value{font-size:1.9rem;font-weight:300;font-family:'DM Serif Display',serif;color:var(--text);line-height:1;}
+.stat-sub{font-size:.72rem;margin-top:5px;}
+.admin-panels{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem;}
+
+/* panels */
+.panel{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.panel-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);}
+.panel-title{font-size:.9rem;font-weight:700;}
+.chart-box{padding:1rem 1.25rem 1.25rem;}
+
+/* table */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{text-align:left;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);padding:9px 16px;background:var(--bg);border-bottom:1px solid var(--border);}
+.data-table td{padding:11px 16px;font-size:.82rem;border-bottom:.5px solid var(--border);color:var(--text);vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:#FAFBFC;}
+.mini-bar-wrap{display:flex;align-items:center;gap:8px;}
+.mini-bar-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.mini-bar-fill{height:100%;border-radius:3px;}
+.btn-icon{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--card);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);color:var(--text-muted);}
+.btn-icon svg{width:14px;height:14px;}
+.btn-icon:hover{color:var(--primary);background:var(--primary-light);border-color:var(--primary-mid);}
+.btn-icon.danger:hover{color:var(--danger);background:var(--danger-light);border-color:var(--danger);}
+.status-badge{padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:700;display:inline-block;}
+.badge-pago{background:var(--success-light);color:var(--success);}
+.badge-pendente{background:var(--warning-light);color:var(--warning);}
+.badge-cancelado{background:var(--danger-light);color:var(--danger);}
+.btn-mark-paid{padding:5px 11px;background:var(--success-light);border:1px solid var(--success);border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;color:var(--success);transition:var(--t);}
+.btn-mark-paid:hover{background:var(--success);color:white;}
+.btn-add-green{padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:var(--t);}
+.btn-add-green:hover{background:var(--primary-dark);}
+.btn-add-green svg{width:13px;height:13px;}
+.results-count{font-size:.78rem;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);padding:3px 10px;border-radius:100px;}
+
+/* notifs */
+.notif-item{padding:12px 16px;display:flex;gap:10px;border-bottom:.5px solid var(--border);transition:background .15s;}
+.notif-item:last-child{border-bottom:none;}
+.notif-item:hover{background:var(--bg);}
+.notif-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.dot-danger{background:var(--danger);}
+.dot-warning{background:var(--warning);}
+.dot-success{background:var(--success);}
+.notif-text{font-size:.8rem;color:var(--text);line-height:1.5;}
+.notif-time{font-size:.7rem;color:var(--text-muted);margin-top:2px;}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,27,42,.55);display:none;align-items:center;justify-content:center;z-index:2500;padding:1rem;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border-radius:18px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .3s cubic-bezier(.4,0,.2,1);}
+@keyframes modalIn{from{transform:translateY(24px) scale(.97);opacity:0;}}
+.modal-header{padding:1.3rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);position:sticky;top:0;z-index:1;}
+.modal-header h2{font-size:1.05rem;font-weight:700;}
+.modal-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;font-size:.9rem;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:var(--t);}
+.modal-close:hover{background:var(--danger-light);color:var(--danger);}
+.modal-body{padding:1.5rem;}
+.form-group{margin-bottom:1rem;}
+.form-label{display:block;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
+.form-control{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.9rem;color:var(--text);background:var(--bg);outline:none;transition:var(--t);}
+.form-control:focus{border-color:var(--primary);background:var(--card);box-shadow:0 0 0 3px rgba(0,122,94,.08);}
+.form-hint{font-size:.72rem;color:var(--text-muted);margin-top:4px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-error{font-size:.78rem;color:var(--danger);margin-top:4px;display:none;}
+.modal-footer{padding:1rem 1.5rem 1.5rem;display:flex;gap:10px;}
+.btn-cancel{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:'Sora',sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;color:var(--text-muted);transition:var(--t);}
+.btn-cancel:hover{border-color:var(--text-muted);color:var(--text);}
+.btn-primary{flex:2;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:var(--t);}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+
+/* receita viewer */
+.receita-viewer{text-align:center;padding:1rem;}
+.receita-viewer img{max-width:100%;border-radius:8px;border:1px solid var(--border);}
+.receita-url-link{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:var(--primary);color:white;border-radius:8px;font-weight:700;font-size:.85rem;text-decoration:none;margin-top:1rem;transition:var(--t);}
+.receita-url-link:hover{background:var(--primary-dark);}
+
+/* skeleton / loading */
+.skeleton{background:linear-gradient(90deg,var(--bg) 25%,#edf2f7 50%,var(--bg) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:6px;}
+@keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
+
+/* toast */
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--text);color:white;border-radius:10px;font-size:.85rem;font-weight:500;box-shadow:var(--shadow-lg);transform:translateY(20px);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease;max-width:340px;}
+#toast.show{transform:translateY(0);opacity:1;}
+#toast.toast-success{background:var(--success);}
+#toast.toast-error{background:var(--danger);}
+#toast svg{width:16px;height:16px;flex-shrink:0;}
+
+/* admin sections */
+.admin-section{display:none;}
+.admin-section.active{display:block;}
+
+@media(max-width:900px){.admin-grid{grid-template-columns:1fr;}.admin-sidebar{display:none;}.stats-grid{grid-template-columns:1fr 1fr;}.admin-panels{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ──────────────────────────────────────────────── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-mark"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></div>
+      <div class="login-logo-name">Farma<span>Find</span></div>
+    </div>
+    <p class="login-sub">Portal da Farmácia — Acesso Restrito</p>
+    <div id="loginError" class="login-error"></div>
+    <div class="login-field"><label class="login-label">Email</label><input type="email" id="loginEmail" class="login-input" placeholder="admin@suafarmacia.co.mz" autocomplete="email"/></div>
+    <div class="login-field"><label class="login-label">Palavra-passe</label><input type="password" id="loginPass" class="login-input" placeholder="••••••••" autocomplete="current-password"/></div>
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">Entrar no Portal</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;">
+      <a class="btn-recover" href="farmafind_cadastro_farmacias.html" style="margin:0;width:auto;padding:0;font-size:.8rem;">Criar Conta</a>
+      <button onclick="openForgotModal()" style="background:none;border:none;cursor:pointer;font-size:.8rem;color:var(--primary);font-family:'Sora',sans-serif;font-weight:600;text-decoration:underline;">Esqueceu a palavra-passe?</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL RECUPERAÇÃO DE PALAVRA-PASSE ─────────────────── -->
+<div class="modal-overlay" id="forgotModal">
+  <div class="modal" role="dialog" aria-labelledby="forgotTitle" style="max-width:420px;">
+    <div class="modal-header">
+      <h2 id="forgotTitle" style="font-size:.95rem;">Recuperar palavra-passe</h2>
+      <button class="modal-close" onclick="closeForgotModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.83rem;color:var(--text-muted);margin-bottom:1.2rem;line-height:1.6;">Introduza o seu email de administrador. Enviaremos um link para redefinir a sua palavra-passe.</p>
+      <div id="forgotSuccess" style="display:none;background:var(--success-light);border:1px solid var(--success);border-radius:var(--radius-sm);padding:12px 14px;font-size:.82rem;color:var(--success);margin-bottom:1rem;">
+        ✓ Email enviado! Verifique a sua caixa de entrada (e a pasta de spam).
+      </div>
+      <div id="forgotError" style="display:none;background:var(--danger-light);border:1px solid var(--danger);border-radius:var(--radius-sm);padding:10px 14px;font-size:.82rem;color:var(--danger);margin-bottom:1rem;"></div>
+      <div id="forgotForm">
+        <div class="form-group">
+          <label class="form-label">Email da conta</label>
+          <input type="email" id="forgotEmail" class="form-control" placeholder="admin@suafarmacia.co.mz" autocomplete="email"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeForgotModal()">Cancelar</button>
+      <button class="btn-primary" id="btnForgot" onclick="sendPasswordReset()">Enviar link</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADMIN APP ───────────────────────────────────────────── -->
+<div id="adminApp">
+  <div class="admin-grid">
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+      <div class="admin-logo">Farma<span>Find</span></div>
+      <div class="admin-profile">
+        <div class="admin-avatar" id="sideAvatar">FF</div>
+        <div><div class="admin-name" id="sideName">Carregando...</div><div class="admin-role" id="sideRole">Portal da Farmácia</div></div>
+      </div>
+      <button class="admin-nav-item active" onclick="adminNav('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
+      <button class="admin-nav-item" onclick="adminNav('stock',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Gestão de Stock</button>
+      <button class="admin-nav-item" onclick="adminNav('reservas',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>Reservas</button>
+      <div class="admin-nav-divider"></div>
+      <button class="admin-nav-item" onclick="adminNav('notificacoes',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notificações<span class="notif-count" id="adminNotifCount" style="display:none">0</span></button>
+      <div class="admin-nav-divider"></div>
+      <button class="btn-logout" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Terminar sessão</button>
+    </div>
+
+    <!-- Main -->
+    <div class="admin-main">
+
+      <!-- DASHBOARD -->
+      <div class="admin-section active" id="section-dashboard">
+        <div class="admin-page-title">Dashboard</div>
+        <div class="admin-page-sub" id="dashSub">A carregar...</div>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card"><div class="skeleton" style="height:36px;width:36px;border-radius:9px;margin-bottom:10px"></div><div class="skeleton" style="height:10px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:50%"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:36px;width:36px;border-radius:9px;margin-bottom:10px"></div><div class="skeleton" style="height:10px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:50%"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:36px;width:36px;border-radius:9px;margin-bottom:10px"></div><div class="skeleton" style="height:10px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:50%"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:36px;width:36px;border-radius:9px;margin-bottom:10px"></div><div class="skeleton" style="height:10px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:50%"></div></div>
+        </div>
+        <div class="admin-panels">
+          <div class="panel"><div class="panel-header"><span class="panel-title">Reservas da semana</span></div><div class="chart-box"><canvas id="weekChart" height="120"></canvas></div></div>
+          <div class="panel"><div class="panel-header"><span class="panel-title">Alertas de stock</span></div><div id="dashAlerts" style="padding:.5rem 0"></div></div>
+        </div>
+      </div>
+
+      <!-- STOCK -->
+      <div class="admin-section" id="section-stock">
+        <div class="admin-page-title">Gestão de Stock</div>
+        <div class="admin-page-sub">Adicione e actualize medicamentos. Mínimo obrigatório: 100 cartelas.</div>
+        <div class="panel" style="margin-bottom:1rem">
+          <div class="panel-header"><span class="panel-title">Medicamentos em Stock</span><button class="btn-add-green" onclick="openStockModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button></div>
+          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Medicamento</th><th>Categoria</th><th>Cartelas</th><th>Nível</th><th>Preço (MT)</th><th>Acções</th></tr></thead><tbody id="stockTableBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- RESERVAS -->
+      <div class="admin-section" id="section-reservas">
+        <div class="admin-page-title">Reservas</div>
+        <div class="admin-page-sub">Gerencie reservas dos utentes. Após pagamento presencial, marque como pago.</div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Lista de Reservas</span><span class="results-count" id="reservasCount">—</span></div>
+          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Código</th><th>Utente</th><th>Medicamentos</th><th>Data</th><th>Total</th><th>Estado</th><th>Receita</th><th>Acção</th></tr></thead><tbody id="reservasTableBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- NOTIFICAÇÕES -->
+      <div class="admin-section" id="section-notificacoes">
+        <div class="admin-page-title">Notificações</div>
+        <div class="admin-page-sub">Alertas automáticos de stock crítico — emitidos quando desce abaixo de 100 cartelas.</div>
+        <div class="panel"><div class="panel-header"><span class="panel-title">Alertas recentes</span></div><div id="notifList" style="padding:.5rem 0"></div></div>
+      </div>
+
+    </div><!-- /admin-main -->
+  </div><!-- /admin-grid -->
+</div><!-- /adminApp -->
+
+<!-- STOCK MODAL -->
+<div class="modal-overlay" id="stockModal">
+  <div class="modal">
+    <div class="modal-header"><h2 id="stockModalTitle">Adicionar Medicamento</h2><button class="modal-close" onclick="closeModal('stockModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Nome do medicamento *</label><input type="text" id="fNome" class="form-control" placeholder="Ex: Amoxicilina 500mg"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Categoria *</label><select id="fCat" class="form-control"><option>Antibióticos</option><option>Analgésicos</option><option>Anti-inflamatórios</option><option>Antidiabéticos</option><option>Antiparasitários</option><option>Antimaláricos</option><option>Cardiovascular</option><option>Gastrointestinal</option><option>Vitaminas/Suplementos</option><option>Outro</option></select></div>
+        <div class="form-group"><label class="form-label">Dosagem</label><input type="text" id="fDosagem" class="form-control" placeholder="Ex: 500mg"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Cartelas em stock *</label><input type="number" id="fStock" class="form-control" min="0" placeholder="Ex: 300"/><div class="form-hint">Mínimo recomendado: 100</div></div>
+        <div class="form-group"><label class="form-label">Preço por cartela (MT) *</label><input type="number" id="fPreco" class="form-control" min="0" placeholder="Ex: 150"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Alerta mínimo (cartelas)</label><input type="number" id="fMinimo" class="form-control" value="100" min="100"/><div class="form-hint">Notificação abaixo deste valor</div></div>
+        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px"><label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="fReceita" style="width:16px;height:16px;accent-color:var(--primary)"/> Requer receita médica</label></div>
+      </div>
+      <div id="stockModalError" style="display:none;background:var(--danger-light);border:1px solid var(--danger);border-radius:8px;padding:9px 13px;font-size:.8rem;color:var(--danger);margin-top:.5rem"></div>
+    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('stockModal')">Cancelar</button><button class="btn-primary" id="btnSaveStock" onclick="saveStock()">Guardar</button></div>
+  </div>
+</div>
+
+<!-- RECEITA MODAL -->
+<div class="modal-overlay" id="receitaModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header"><h2>Receita Médica</h2><button class="modal-close" onclick="closeModal('receitaModal')">✕</button></div>
+    <div class="modal-body">
+      <div id="receitaContent" class="receita-viewer"><p style="color:var(--text-muted);font-size:.85rem">A carregar receita...</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><svg id="toastIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+
+<script>
+// ============================================================
+//  CONFIG
+// ============================================================
+let SUPABASE_URL = '';
+let SUPABASE_KEY = '';
+let supabaseClient = null;
+let supabaseClientReady = null;
+
+async function loadSupabaseConfig() {
+  if (supabaseClient) return supabaseClient;
+  const res = await fetch('/config');
+  if (!res.ok) throw new Error('Não foi possível carregar a configuração do Supabase.');
+  const cfg = await res.json();
+  SUPABASE_URL = cfg.supabaseUrl;
+  SUPABASE_KEY = cfg.supabaseAnonKey;
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  return supabaseClient;
+}
+
+// Promise que aguarda a config estar pronta
+supabaseClientReady = loadSupabaseConfig().catch(err => {
+  console.error('Erro ao carregar config do Supabase:', err);
+  return null;
+});
+
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000/api/v1'
+  : 'https://farmafind-api.onrender.com/api/v1'; // ← actualizar após deploy
+
+// ============================================================
+//  ESTADO
+// ============================================================
+let currentUser   = null;
+let currentToken  = null;
+let weekChart     = null;
+let editingMedId  = null; // null = criar, string = editar
+let realtimeChannel = null;
+
+// ============================================================
+//  AUTH
+// ============================================================
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const btn   = document.getElementById('btnLogin');
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  if (!email || !pass)
+   { 
+    showLoginError('Preencha o email e a palavra-passe.');
+    return;
+   }
+  btn.disabled = true; btn.textContent = 'A entrar...';
+  try {
+    await supabaseClientReady;
+    if (!supabaseClient) throw new Error('Supabase não foi inicializado.');
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+    if (error) throw error;
+    currentUser  = data.user;
+    currentToken = data.session.access_token;
+    await initAdmin();
+  } catch (err) {
+    showLoginError(err.message || 'Email ou palavra-passe incorrectos.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar no Portal';
+  }
+}
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+async function doLogout() {
+  await supabaseClientReady;
+  if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
+  await supabaseClient.auth.signOut();
+  currentUser = null; currentToken = null;
+  document.getElementById('adminApp').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  showToast('Sessão terminada.');
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+// ============================================================
+//  RECUPERAÇÃO DE PALAVRA-PASSE
+// ============================================================
+function openForgotModal() {
+  document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value || '';
+  document.getElementById('forgotError').style.display = 'none';
+  document.getElementById('forgotSuccess').style.display = 'none';
+  document.getElementById('forgotForm').style.display = 'block';
+  document.getElementById('btnForgot').style.display = 'block';
+  document.getElementById('forgotModal').classList.add('open');
+}
+
+function closeForgotModal() {
+  document.getElementById('forgotModal').classList.remove('open');
+}
+
+async function sendPasswordReset() {
+  const email = document.getElementById('forgotEmail').value.trim();
+  const errEl = document.getElementById('forgotError');
+  const sucEl = document.getElementById('forgotSuccess');
+  errEl.style.display = 'none';
+  sucEl.style.display = 'none';
+
+  if (!email || !email.includes('@')) {
+    errEl.textContent = 'Introduza um email válido.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('btnForgot');
+  btn.disabled = true; btn.textContent = 'A enviar...';
+
+  try {
+    await supabaseClientReady;
+    if (!supabaseClient) throw new Error('Supabase não inicializado. Tente recarregar a página.');
+
+    // Determinar URL de redireccionamento correcto (produção ou local)
+    const redirectTo = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? `http://localhost:3000/reset-password.html`
+      : `${window.location.origin}/reset-password.html`;
+
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+
+    if (error) throw error;
+
+    // Mostrar sucesso e esconder formulário
+    sucEl.style.display = 'block';
+    document.getElementById('forgotForm').style.display = 'none';
+    btn.style.display = 'none';
+  } catch (err) {
+    errEl.textContent = err.message || 'Erro ao enviar email. Verifique o endereço.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    if (btn.style.display !== 'none') btn.textContent = 'Enviar link';
+  }
+}
+
+// Verificar sessão existente ao carregar
+window.addEventListener('load', async () => {
+  await supabaseClientReady;
+  if (!supabaseClient) {
+    console.error('Supabase não foi inicializado.');
+    return;
+  }
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    currentUser  = session.user;
+    currentToken = session.access_token;
+    await initAdmin();
+  }
+});
+
+// ============================================================
+//  INIT ADMIN (pós-login)
+// ============================================================
+async function initAdmin() {
+  try {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'block';
+    // Preencher perfil sidebar
+    const email = currentUser.email || '';
+    document.getElementById('sideAvatar').textContent = email.substring(0,2).toUpperCase();
+    document.getElementById('sideName').textContent   = email;
+    document.getElementById('dashSub').textContent    = `Bem-vindo, ${email} — ${new Date().toLocaleDateString('pt-MZ', {weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
+    // Carregar dados
+    await Promise.all([loadDashboard(), loadStock(), loadReservas()]);
+    subscribeToReservas();
+  } catch (err) {
+    console.error('Erro ao inicializar admin:', err);
+    showToast('Erro ao carregar portal: ' + err.message, 'error');
+    // Voltar ao login se houver erro
+    document.getElementById('adminApp').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
+}
+
+// ============================================================
+//  API HELPER com JWT
+// ============================================================
+async function apiCall(path, options = {}) {
+  const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}`, ...(options.headers || {}) };
+  const res  = await fetch(`${API_BASE}/farmacia${path}`, { ...options, headers });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+// ============================================================
+//  REALTIME — Supabase Realtime para novas reservas
+// ============================================================
+function subscribeToReservas() {
+  if (!supabaseClient) return; // Aguardar inicialização
+  realtimeChannel = supabaseClient
+    .channel('reservas-changes')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reservas' }, payload => {
+      showToast(`Nova reserva recebida: ${payload.new.codigo}`, 'success');
+      loadReservas();
+      loadDashboard();
+    })
+    .subscribe();
+}
+
+// ============================================================
+//  DASHBOARD
+// ============================================================
+async function loadDashboard() {
+  try {
+    const data = await apiCall('/dashboard');
+    const d = data.dashboard;
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg></div><div class="stat-label">Reservas Hoje</div><div class="stat-value">${d.reservas_hoje}</div><div class="stat-sub" style="color:var(--warning)">${d.pendentes} pendentes</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:var(--success-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-label">Pagamentos</div><div class="stat-value">${d.pagas}</div><div class="stat-sub" style="color:var(--success)">${d.total_mt_hoje.toLocaleString()} MT hoje</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/></svg></div><div class="stat-label">Medicamentos</div><div class="stat-value">${d.total_medicamentos}</div><div class="stat-sub" style="color:var(--text-muted)">em stock</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:var(--danger-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="stat-label">Stock Crítico</div><div class="stat-value">${d.stock_critico}</div><div class="stat-sub" style="color:var(--danger)">abaixo do mínimo</div></div>`;
+    // Alertas
+    const alertsEl = document.getElementById('dashAlerts');
+    if (!d.alertas || !d.alertas.length) {
+      alertsEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text" style="color:var(--success)">Sem alertas críticos.</div></div>`;
+    } else {
+      alertsEl.innerHTML = d.alertas.map(a => `<div class="notif-item"><div class="notif-dot ${a.stock_nivel==='critico'?'dot-danger':'dot-warning'}"></div><div><div class="notif-text"><strong>${a.nome}</strong> ${a.dosagem||''} — ${a.stock_atual}/${a.stock_minimo} cartelas</div><div class="notif-time">Reabastecimento necessário</div></div></div>`).join('');
+    }
+    // Badge notificações
+    const criticos = d.stock_critico || 0;
+    const badge = document.getElementById('adminNotifCount');
+    badge.textContent = criticos; badge.style.display = criticos ? 'inline-block' : 'none';
+    // Chart
+    renderWeekChart();
+  } catch (err) { showToast('Erro ao carregar dashboard: ' + err.message, 'error'); }
+}
+
+function renderWeekChart() {
+  const ctx = document.getElementById('weekChart');
+  if (!ctx) return;
+  if (weekChart) { weekChart.destroy(); }
+  // Dados ilustrativos — numa versão futura vir da API
+  weekChart = new Chart(ctx.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
+      datasets: [{ label: 'Reservas', data: [8,14,11,19,24,18,12], borderColor: '#007A5E', backgroundColor: 'rgba(0,122,94,.08)', tension: 0.4, fill: true, pointBackgroundColor: '#007A5E', pointRadius: 4 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#F0F4F8' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
+  });
+}
+
+// ============================================================
+//  STOCK
+// ============================================================
+async function loadStock() {
+  try {
+    const data = await apiCall('/medicamentos');
+    renderStockTable(data.medicamentos || []);
+  } catch (err) { document.getElementById('stockTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:1.5rem">Erro ao carregar stock: ${err.message}</td></tr>`; }
+}
+
+function renderStockTable(meds) {
+  const tbody = document.getElementById('stockTableBody');
+  if (!meds.length) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem">Nenhum medicamento cadastrado.</td></tr>`; return; }
+  tbody.innerHTML = meds.map(m => {
+    const pct   = Math.min(100, (m.stock_atual / (m.stock_minimo * 3)) * 100);
+    const color = m.stock_nivel === 'critico' ? '#DC3545' : m.stock_nivel === 'baixo' ? '#E67E22' : '#198754';
+    return `<tr>
+      <td><strong>${m.nome}</strong>${m.dosagem ? ` <span style="font-size:.72rem;color:var(--text-muted)">${m.dosagem}</span>` : ''}</td>
+      <td><span class="status-badge" style="background:var(--primary-light);color:var(--primary)">${m.categoria}</span></td>
+      <td>${m.stock_atual} <small style="color:var(--text-muted)">/ mín ${m.stock_minimo}</small></td>
+      <td><div class="mini-bar-wrap"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${pct.toFixed(0)}%;background:${color}"></div></div><span style="font-size:.7rem;color:var(--text-muted);min-width:28px">${pct.toFixed(0)}%</span></div></td>
+      <td>${Number(m.preco_mt).toLocaleString()} MT</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn-icon" onclick='openEditStock(${JSON.stringify(m).replace(/'/g,"\\'")})'title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="btn-icon danger" onclick="deleteMed('${m.id}','${m.nome.replace(/'/g,"\\'")}')" title="Remover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openStockModal() {
+  editingMedId = null;
+  document.getElementById('stockModalTitle').textContent = 'Adicionar Medicamento';
+  document.getElementById('fNome').value = ''; document.getElementById('fNome').disabled = false;
+  document.getElementById('fCat').value = 'Antibióticos';
+  document.getElementById('fDosagem').value = ''; document.getElementById('fStock').value = '';
+  document.getElementById('fPreco').value = ''; document.getElementById('fMinimo').value = '100';
+  document.getElementById('fReceita').checked = false;
+  document.getElementById('stockModalError').style.display = 'none';
+  openModal('stockModal');
+}
+function openEditStock(med) {
+  editingMedId = med.id;
+  document.getElementById('stockModalTitle').textContent = 'Editar: ' + med.nome;
+  document.getElementById('fNome').value = med.nome; document.getElementById('fNome').disabled = true;
+  document.getElementById('fCat').value = med.categoria;
+  document.getElementById('fDosagem').value = med.dosagem || '';
+  document.getElementById('fStock').value = med.stock_atual;
+  document.getElementById('fPreco').value = med.preco_mt;
+  document.getElementById('fMinimo').value = med.stock_minimo;
+  document.getElementById('fReceita').checked = med.requer_receita;
+  document.getElementById('stockModalError').style.display = 'none';
+  openModal('stockModal');
+}
+
+async function saveStock() {
+  const payload = {
+    nome: document.getElementById('fNome').value.trim(),
+    categoria: document.getElementById('fCat').value,
+    dosagem: document.getElementById('fDosagem').value.trim() || null,
+    stock_atual: parseInt(document.getElementById('fStock').value),
+    preco_mt: parseFloat(document.getElementById('fPreco').value),
+    stock_minimo: parseInt(document.getElementById('fMinimo').value) || 100,
+    requer_receita: document.getElementById('fReceita').checked,
+  };
+  if (!payload.nome) { showStockError('Insira o nome do medicamento.'); return; }
+  if (isNaN(payload.stock_atual) || isNaN(payload.preco_mt)) { showStockError('Preencha quantidade e preço.'); return; }
+  if (payload.stock_minimo < 100) { showStockError('O mínimo não pode ser inferior a 100 cartelas.'); return; }
+  const btn = document.getElementById('btnSaveStock');
+  btn.disabled = true; btn.textContent = 'A guardar...';
+  try {
+    if (editingMedId) { await apiCall(`/medicamentos/${editingMedId}`, { method: 'PATCH', body: JSON.stringify(payload) }); }
+    else              { await apiCall('/medicamentos', { method: 'POST', body: JSON.stringify(payload) }); }
+    closeModal('stockModal');
+    await loadStock();
+    await loadDashboard();
+    showToast(editingMedId ? 'Stock actualizado!' : 'Medicamento adicionado!', 'success');
+  } catch (err) { showStockError(err.message); }
+  finally { btn.disabled = false; btn.textContent = 'Guardar'; }
+}
+
+async function deleteMed(id, nome) {
+  if (!confirm(`Remover "${nome}" do stock?`)) return;
+  try {
+    await apiCall(`/medicamentos/${id}`, { method: 'DELETE' });
+    await loadStock(); await loadDashboard();
+    showToast(`"${nome}" removido.`);
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+}
+
+function showStockError(msg) {
+  const el = document.getElementById('stockModalError');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+// ============================================================
+//  RESERVAS
+// ============================================================
+async function loadReservas() {
+  try {
+    const data = await apiCall('/reservas');
+    const reservas = data.reservas || [];
+    document.getElementById('reservasCount').textContent = `${reservas.length} reserva${reservas.length !== 1 ? 's' : ''}`;
+    renderReservasTable(reservas);
+    renderNotificacoes(reservas);
+  } catch (err) { document.getElementById('reservasTableBody').innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--danger);padding:1.5rem">Erro: ${err.message}</td></tr>`; }
+}
+
+function renderReservasTable(reservas) {
+  const tbody = document.getElementById('reservasTableBody');
+  if (!reservas.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem">Nenhuma reserva ainda.</td></tr>`; return; }
+  tbody.innerHTML = reservas.map(r => {
+    const items   = Array.isArray(r.itens) ? r.itens : [];
+    const itemStr = items.map(i => `${i.qty}× ${i.nome}`).join(', ');
+    const total   = Number(r.total_mt);
+    return `<tr>
+      <td><code style="font-size:.78rem;font-weight:800;color:var(--primary);background:var(--primary-light);padding:2px 7px;border-radius:4px">${r.codigo}</code></td>
+      <td><strong>${r.cliente_nome}</strong><br><span style="font-size:.72rem;color:var(--text-muted)">${r.cliente_tel}</span></td>
+      <td style="max-width:180px;font-size:.78rem">${itemStr}</td>
+      <td style="font-size:.78rem;white-space:nowrap">${new Date(r.criada_em).toLocaleString('pt-MZ')}</td>
+      <td style="font-weight:700">${total.toLocaleString()} MT</td>
+      <td><span class="status-badge badge-${r.status}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
+      <td>${r.receita_path ? `<button class="btn-icon" onclick="verReceita('${r.id}')" title="Ver receita"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>` : '<span style="color:var(--text-light);font-size:.75rem">—</span>'}</td>
+      <td>${r.status === 'pendente' ? `<button class="btn-mark-paid" onclick="marcarPago('${r.id}')">Marcar Pago</button>` : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function marcarPago(id) {
+  if (!confirm('Confirmar recebimento do pagamento e abater stock?')) return;
+  try {
+    await apiCall(`/reservas/${id}/pagar`, { method: 'PATCH' });
+    await loadReservas(); await loadDashboard();
+    showToast('Pagamento registado e stock abatido!', 'success');
+  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
+}
+
+async function verReceita(id) {
+  openModal('receitaModal');
+  document.getElementById('receitaContent').innerHTML = '<p style="color:var(--text-muted);font-size:.85rem">A carregar receita...</p>';
+  try {
+    const data = await apiCall(`/reservas/${id}/receita`);
+    const ext  = data.url?.split('.').pop()?.toLowerCase();
+    if (ext === 'pdf') {
+      document.getElementById('receitaContent').innerHTML = `<p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem">Receita em formato PDF:</p><a class="receita-url-link" href="${data.url}" target="_blank"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Abrir PDF da Receita</a><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">Válido por 15 minutos.</p>`;
+    } else {
+      document.getElementById('receitaContent').innerHTML = `<img src="${data.url}" alt="Receita médica" onerror="this.outerHTML='<p style=color:var(--danger)>Erro ao carregar imagem.</p>'"/><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">Válido por 15 minutos.</p>`;
+    }
+  } catch (err) { document.getElementById('receitaContent').innerHTML = `<p style="color:var(--danger);font-size:.85rem">Erro: ${err.message}</p>`; }
+}
+
+// ============================================================
+//  NOTIFICAÇÕES
+// ============================================================
+function renderNotificacoes(reservas) {
+  const pendentes = reservas.filter(r => r.status === 'pendente').length;
+  const notifEl   = document.getElementById('notifList');
+  const items = [];
+  if (pendentes) items.push({ type: 'warning', text: `${pendentes} reserva${pendentes>1?'s':''} pendente${pendentes>1?'s':''} aguardam levantamento.`, time: 'Agora' });
+  if (!items.length) { notifEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text">Nenhuma notificação pendente.</div></div>`; return; }
+  notifEl.innerHTML = items.map(it => `<div class="notif-item"><div class="notif-dot dot-${it.type}"></div><div><div class="notif-text">${it.text}</div><div class="notif-time">${it.time}</div></div></div>`).join('');
+}
+
+// ============================================================
+//  NAV / MODAL HELPERS
+// ============================================================
+function adminNav(section, el) {
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + section).classList.add('active');
+  el.classList.add('active');
+  if (section === 'reservas') loadReservas();
+  if (section === 'stock')    loadStock();
+}
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ============================================================
+//  TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast'), ico = document.getElementById('toastIcon');
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'show' + (type ? ' toast-' + type : '');
+  ico.innerHTML = type === 'error'
+    ? `<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>`
+    : `<polyline points="20 6 9 17 4 12"/>`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 3500);
+}
+</script>
+</body>
+</html>

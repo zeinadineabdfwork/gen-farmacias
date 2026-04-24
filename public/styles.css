@@ -1,0 +1,53 @@
+/* Estilos inline movidos para arquivo externo */
+
+/* Estilos para elementos com display:none inicialmente */
+#ticketBadge {
+  display: none;
+}
+
+#cartFooter {
+  display: none;
+}
+
+.sidebar-footer {
+  text-align: center;
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+
+#resultsHeader {
+  display: none;
+}
+
+.legend-dot {
+  background: var(--success);
+}
+
+.legend-dot:nth-child(2) {
+  background: var(--warning);
+}
+
+.legend-dot:nth-child(3) {
+  background: var(--danger);
+}
+
+#receitaInput {
+  display: none;
+}
+
+#checkoutError {
+  display: none;
+}
+
+/* Prefixos para compatibilidade */
+#overlay {
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.modal-overlay {
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.logo {
+  -webkit-user-select: none;
+}

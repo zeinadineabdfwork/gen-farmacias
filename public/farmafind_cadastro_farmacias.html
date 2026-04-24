@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<style>
+*,*::before,*::after{
+  box-sizing:border-box;
+  margin:0;padding:0;}
+:root{
+  --primary:#007A5E;--primary-light:#E8F5F1;--primary-mid:#3DAB89;--primary-dark:#004D3B;
+  --danger:#DC3545;--danger-light:#FDECEA;
+  --success:#198754;--success-light:#D1E7DD;
+  --warning:#E67E22;--warning-light:#FEF3E2;
+  --border:var(--color-border-tertiary);
+  --card:var(--color-background-primary);
+  --bg:var(--color-background-secondary);
+  --text:var(--color-text-primary);
+  --muted:var(--color-text-secondary);
+  --r:var(--border-radius-lg);--rm:var(--border-radius-md);
+}
+body{
+  font-family:var(--font-sans);
+  background:transparent;
+  color:var(--text);
+}
+
+.wrap{
+  max-width:780px;
+  margin:0 auto;
+  padding:1.5rem 1rem 3rem;
+}
+
+/* progress */
+.progress-wrap{display:flex;
+  align-items:center;
+  gap:0;
+  margin-bottom:2rem;
+}
+.step-node{display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  flex:1;
+}
+.step-circle{
+  width:36px;
+  height:36px;
+  border-radius:60%;
+  border:2px solid var(--border);
+  display:flex;align-items:center;
+  justify-content:center;
+  font-size:19px;
+  font-weight:500;
+  color:var(--muted);
+  background:var(--card);
+  transition:all .3s;
+  position:relative;
+  z-index:1;
+}
+.step-circle.done{
+  background:#007A5E;
+  border-color:#007A5E;
+  color:white;
+}
+.step-circle.active{
+  background:#007A5E;
+  border-color:#007A5E;
+  color:white;
+  box-shadow:0 0 0 4px #E8F5F1;
+}
+.step-label{
+  font-size:11px;
+  color:var(--muted);
+  text-align:center;
+  line-height:1.3;
+  max-width:72px;
+}
+.step-label.active{
+  color:#007A5E;
+  font-weight:500;
+}
+.step-line{
+  flex:1;
+  height:2px;
+  background:var(--border);
+  margin-top:-18px;
+  position:relative;
+  z-index:0;transition:background .3s;
+}
+.step-line.done{
+  background:#007A5E;}
+
+/* card */
+.card{background:var(--card);
+  border:0.5px solid var(--border);
+  border-radius:var(--r);overflow:hidden;
+  margin-bottom:1rem;
+}
+.card-head{padding:1rem 1.25rem;border-bottom:0.5px solid var(--border);background:var(--bg);display:flex;align-items:center;gap:10px;}
+.card-head-icon{width:32px;height:32px;border-radius:var(--rm);background:#007A5E;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.card-head-icon svg{width:16px;height:16px;stroke:white;fill:none;stroke-width:2;}
+.card-head h2{font-size:15px;font-weight:600;}
+.card-head p{font-size:12px;color:var(--muted);margin-top:1px;}
+.card-body{padding:1.25rem;}
+
+/* grid */
+.fg{display:grid;gap:1rem;}
+.fg-2{grid-template-columns:1fr 1fr;}
+.fg-3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:600px){.fg-2,.fg-3{grid-template-columns:1fr;}}
+
+/* field */
+.fld{display:flex;flex-direction:column;gap:5px;}
+.fld label{font-size:13px;font-weight:550;color:rgba(0, 0, 0, 1);text-transform:uppercase;letter-spacing:.04em;}
+.fld label .req{color:#DC3545;margin-left:2px;}
+.fld input,.fld select,.fld textarea{padding:10px 12px;border:0.5px solid var(--border);border-radius:var(--rm);font-family:var(--font-sans);font-size:14px;color:var(--text);background:rgba(0, 0, 0, .1);outline:none;transition:border .2s,box-shadow .2s;width:100%;}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:#007A5E;box-shadow:0 0 0 3px rgba(0,122,94,.5);}
+.fld input.err,.fld select.err{border-color:#DC3545;}
+.fld .hint{font-size:11px; font-weight: 500; color:var(--muted);}
+.fld .err-msg{font-size:11px;color:#DC3545;display:none;}
+.fld .err-msg.show{display:block;}
+.fld textarea{resize:vertical;min-height:72px;}
+
+/* checkbox group */
+.days-group{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
+.day-chip{padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--rm);font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);background:var(--card);transition:all .2s;user-select:none;}
+.day-chip.on{background:#007A5E;border-color:#007A5E;color:white;}
+
+/* time row */
+.time-row{display:flex;align-items:center;gap:8px;}
+.time-row span{font-size:13px;color:var(--muted);}
+
+/* logo upload */
+.upload-box{border:1.5px dashed var(--border);border-radius:var(--rm);padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);}
+.upload-box:hover{border-color:#007A5E;background:#E8F5F1;}
+.upload-box svg{width:28px;height:28px;stroke:var(--muted);fill:none;stroke-width:1.5;margin-bottom:6px;}
+.upload-box p{font-size:13px;color:var(--muted);}
+.upload-box span{font-size:11px;color:var(--muted);}
+#logoPreview{display:none;width:72px;height:72px;object-fit:contain;border-radius:var(--rm);border:0.5px solid var(--border);margin:0 auto 8px;}
+
+/* map placeholder */
+.map-ph{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rm);height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:border .2s;}
+.map-ph:hover{border-color:#007A5E;}
+.map-ph svg{width:28px;height:28px;stroke:#007A5E;fill:none;stroke-width:1.5;}
+.map-ph p{font-size:13px;color:var(--muted);}
+.map-ph span{font-size:11px;color:var(--muted);}
+.coords-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+
+/* toggle */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--border);}
+.toggle-row:last-child{border-bottom:none;padding-bottom:0;}
+.toggle-info p{font-size:14px;font-weight:500;}
+.toggle-info span{font-size:12px;color:var(--muted);}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:gray;border-radius:100px;cursor:pointer;transition:.25s;}
+.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:white;border-radius:50%;transition:.25s;}
+.toggle input:checked+.toggle-slider{background:#007A5E;}
+.toggle input:checked+.toggle-slider::before{transform:translateX(18px);}
+
+/* summary */
+.summary-grid{display:grid;gap:8px;}
+.sum-row{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid var(--border);}
+.sum-row:last-child{border-bottom:none;}
+.sum-key{font-size:12px;color:var(--muted);min-width:140px;padding-top:1px;}
+.sum-val{font-size:13px;font-weight:500;flex:1;}
+.sum-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:100px;font-size:11px;font-weight:500;}
+.badge-ok{background:#D1E7DD;color:#0A5028;}
+.badge-warn{background:#FEF3E2;color:#7A3E00;}
+
+/* footer */
+.form-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:1.5rem;}
+.btn-back{padding:10px 20px;border:0.5px solid var(--border);border-radius:var(--rm);background:none;font-family:var(--font-sans);font-size:14px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .2s;}
+.btn-back:hover{border-color:var(--muted);color:var(--text);}
+.btn-next{padding:10px 24px;background:#007A5E;color:white;border:none;border-radius:var(--rm);font-family:var(--font-sans);font-size:14px;font-weight:500;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:6px;}
+.btn-next:hover{background:#004D3B;}
+.btn-next svg{width:15px;height:15px;stroke:white;fill:none;stroke-width:2.5;}
+.btn-next:disabled{opacity:.5;cursor:not-allowed;}
+
+/* success */
+.success-screen{display:none;text-align:center;padding:3rem 1rem;}
+.success-icon{width:64px;height:64px;background:#D1E7DD;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;}
+.success-icon svg{width:28px;height:28px;stroke:#198754;fill:none;stroke-width:2.5;}
+.success-screen h2{font-size:22px;font-weight:500;margin-bottom:.5rem;}
+.success-screen p{font-size:14px;color:var(--muted);max-width:400px;margin:0 auto 1.5rem;}
+.success-code{display:inline-block;padding:8px 16px;background:#E8F5F1;border:0.5px solid #3DAB89;border-radius:var(--rm);font-size:15px;font-weight:500;color:#007A5E;font-family:var(--font-mono);}
+
+.section{display:none;}
+.section.show{display:block;}
+</style>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <div class="wrap">
+  <h2 class="sr-only">Formulário de cadastro de farmácias — FarmaFind</h2>
+
+  <!-- Progress -->
+  <div class="progress-wrap" id="progressBar">
+    <div class="step-node">
+      <div class="step-circle active" id="sc1">1</div>
+      <div class="step-label active" id="sl1">Identificação</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-node">
+      <div class="step-circle" id="sc2">2</div>
+      <div class="step-label" id="sl2">Localização</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-node">
+      <div class="step-circle" id="sc3">3</div>
+      <div class="step-label" id="sl3">Horários</div>
+    </div>
+    <div class="step-line" id="line3"></div>
+    <div class="step-node">
+      <div class="step-circle" id="sc4">4</div>
+      <div class="step-label" id="sl4">Serviços</div>
+    </div>
+    <div class="step-line" id="line4"></div>
+    <div class="step-node">
+      <div class="step-circle" id="sc5">5</div>
+      <div class="step-label" id="sl5">Confirmação</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: Identificação -->
+  <div class="section show" id="step1">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div><h2>Dados da farmácia</h2><p>Informações públicas que aparecerão no FarmaFind</p></div>
+      </div>
+      <div class="card-body">
+        <div class="fg" style="gap:1.25rem">
+          <div class="fld">
+            <label>Nome comercial <span class="req">*</span></label>
+            <input type="text" id="fNome" placeholder="Ex: Farmácia Central de Maputo"/>
+            <div class="err-msg" id="eNome">Nome é obrigatório</div>
+          </div>
+          <div class="fg fg-2">
+            <div class="fld">
+              <label>Slug / URL único <span class="req">*</span></label>
+              <input type="text" id="fSlug" placeholder="farmacia-central-maputo"/>
+              <div class="hint">Gerado automaticamente, pode editar</div>
+              <div class="err-msg" id="eSlug">Slug inválido (só minúsculas, hífens)</div>
+            </div>
+            <div class="fld">
+              <label>CNPJ / NUIT <span class="req">*</span></label>
+              <input type="text" id="fNuit" placeholder="Ex: 123456789"/>
+              <div class="hint">Número único de identificação tributária</div>
+              <div class="err-msg" id="eNuit">NUIT é obrigatório</div>
+            </div>
+          </div>
+          <div class="fg fg-2">
+            <div class="fld">
+              <label>Email de contacto <span class="req">*</span></label>
+              <input type="email" id="fEmail" placeholder="farmacia@exemplo.co.mz"/>
+              <div class="err-msg" id="eEmail">Email inválido</div>
+            </div>
+            <div class="fld">
+              <label>Telefone principal <span class="req">*</span></label>
+              <input type="tel" id="fTel" placeholder="+258 21 000 000"/>
+              <div class="err-msg" id="eTel">Telefone é obrigatório</div>
+            </div>
+          </div>
+          <div class="fg fg-2">
+            <div class="fld">
+              <label>WhatsApp</label>
+              <input type="tel" id="fWhatsapp" placeholder="+258 84 000 0000"/>
+              <div class="hint">Para reservas e contacto directo</div>
+            </div>
+            <div class="fld">
+              <label>Website</label>
+              <input type="url" id="fWebsite" placeholder="https://suafarmacia.co.mz"/>
+            </div>
+          </div>
+          <div class="fld">
+            <label>Palavra-passe (conta admin) <span class="req">*</span></label>
+            <input type="password" id="fPass" placeholder="Mínimo 8 caracteres"/>
+            <div class="err-msg" id="ePass">Mínimo 8 caracteres</div>
+          </div>
+          <div class="fld">
+            <label>Logótipo da farmácia</label>
+            <div class="upload-box" onclick="document.getElementById('logoInput').click()">
+              <img id="logoPreview"/>
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <p id="uploadTxt">Clique para carregar imagem</p>
+              <span>PNG, JPG ou SVG · máx. 2 MB</span>
+            </div>
+            <input type="file" id="logoInput" accept="image/*" style="display:none"/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn-next" onclick="goStep(2)">Próximo<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Localização -->
+  <div class="section" id="step2">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div><h2>Localização</h2><p>Endereço completo para que os utentes encontrem a farmácia</p></div>
+      </div>
+      <div class="card-body">
+        <div class="fg" style="gap:1.25rem">
+          <div class="fg fg-2">
+            <div class="fld">
+              <label>Cidade / Município <span class="req">*</span></label>
+              <select id="fCidade">
+                <option value="Maputo">Maputo</option>
+                <option value="Matola">Matola</option>
+                <option value="Beira">Beira</option>
+                <option value="Nampula">Nampula</option>
+                <option value="Quelimane">Quelimane</option>
+                <option value="Tete">Tete</option>
+                <option value="Chimoio">Chimoio</option>
+                <option value="Nacala">Nacala</option>
+                <option value="Lichinga">Lichinga</option>
+                <option value="Pemba">Pemba</option>
+                <option value="Xai-Xai">Xai-Xai</option>
+                <option value="Inhambane">Inhambane</option>
+              </select>
+            </div>
+            <div class="fld">
+              <label>Bairro / Distrito</label>
+              <input type="text" id="fBairro" placeholder="Ex: Sommerschield"/>
+            </div>
+          </div>
+          <div class="fld">
+            <label>Morada completa <span class="req">*</span></label>
+            <input type="text" id="fMorada" placeholder="Ex: Av. Julius Nyerere, 1234, R/C"/>
+            <div class="err-msg" id="eMorada">Morada é obrigatória</div>
+          </div>
+          <div class="fld">
+            <label>Referência / Ponto de referência</label>
+            <input type="text" id="fRef" placeholder="Ex: Junto ao Hospital Central, em frente ao BCI"/>
+            <div class="hint">Ajuda utentes a localizar a farmácia mais facilmente</div>
+          </div>
+          <div class="fld">
+            <label>Coordenadas GPS</label>
+            <div class="map-ph" onclick="useCurrentLocation()">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+              <p>Usar localização actual</p>
+              <span>Ou insira manualmente abaixo</span>
+            </div>
+            <div class="coords-row">
+              <div class="fld"><label>Latitude</label><input type="number" id="fLat" placeholder="-25.9653" step="0.000001"/></div>
+              <div class="fld"><label>Longitude</label><input type="number" id="fLon" placeholder="32.5892" step="0.000001"/></div>
+            </div>
+            <div class="err-msg show" id="eCoords" style="display:none">Coordenadas inválidas para Moçambique</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn-back" onclick="goStep(1)">Voltar</button>
+      <button class="btn-next" onclick="goStep(3)">Próximo<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Horários -->
+  <div class="section" id="step3">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div><h2>Horários de funcionamento</h2><p>Quando a farmácia está aberta ao público</p></div>
+      </div>
+      <div class="card-body">
+        <div class="fg" style="gap:1.25rem">
+          <div class="fld">
+            <label>Dias de funcionamento <span class="req">*</span></label>
+            <div class="days-group" id="daysGroup">
+              <div class="day-chip on" data-d="seg">Seg</div>
+              <div class="day-chip on" data-d="ter">Ter</div>
+              <div class="day-chip on" data-d="qua">Qua</div>
+              <div class="day-chip on" data-d="qui">Qui</div>
+              <div class="day-chip on" data-d="sex">Sex</div>
+              <div class="day-chip" data-d="sab">Sáb</div>
+              <div class="day-chip" data-d="dom">Dom</div>
+              <div class="day-chip" data-d="feriados">Feriados</div>
+            </div>
+          </div>
+          <div class="fg fg-2">
+            <div class="fld">
+              <label>Hora de abertura <span class="req">*</span></label>
+              <input type="time" id="fAbertura" value="08:00"/>
+            </div>
+            <div class="fld">
+              <label>Hora de fecho <span class="req">*</span></label>
+              <input type="time" id="fFecho" value="18:00"/>
+            </div>
+          </div>
+          <div class="fld">
+            <label>Horário especial (opcional)</label>
+            <input type="text" id="fHorarioEsp" placeholder="Ex: Sábado: 08h–13h · Urgências 24h"/>
+            <div class="hint">Informação adicional exibida no perfil da farmácia</div>
+          </div>
+          <div class="fld">
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:14px;cursor:pointer">
+              <input type="checkbox" id="fAberta24" style="width:16px;height:16px;accent-color:#007A5E"/>
+              Serviço de urgência / disponível 24 horas
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn-back" onclick="goStep(2)">Voltar</button>
+      <button class="btn-next" onclick="goStep(4)">Próximo<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Serviços & Config -->
+  <div class="section" id="step4">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+        <div><h2>Serviços & configuração</h2><p>Personaliza o que a tua farmácia oferece</p></div>
+      </div>
+      <div class="card-body">
+        <div class="fg" style="gap:1rem">
+          <div class="toggle-row">
+            <div class="toggle-info"><p>Reservas online activas</p><span>Utentes podem reservar medicamentos pelo FarmaFind</span></div>
+            <label class="toggle"><input type="checkbox" id="tReservas" checked/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><p>Aceitar receitas médicas digitais</p><span>Utentes podem enviar foto da receita ao reservar</span></div>
+            <label class="toggle"><input type="checkbox" id="tReceitas" checked/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><p>Notificações por WhatsApp</p><span>Recebe alertas de novas reservas via WhatsApp</span></div>
+            <label class="toggle"><input type="checkbox" id="tWhatsapp"/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><p>Visível no mapa público</p><span>A farmácia aparece nas pesquisas de utentes</span></div>
+            <label class="toggle"><input type="checkbox" id="tVisivel" checked/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info"><p>Farmácia activa / operacional</p><span>Desativa temporariamente em caso de encerramento</span></div>
+            <label class="toggle"><input type="checkbox" id="tAtiva" checked/><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div><h2>Notas internas</h2><p>Não visível publicamente</p></div>
+      </div>
+      <div class="card-body">
+        <div class="fld">
+          <label>Observações / notas de administração</label>
+          <textarea id="fNotas" placeholder="Ex: Farmácia parceira desde Janeiro 2025. Contacto responsável: Dona Carla."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn-back" onclick="goStep(3)">Voltar</button>
+      <button class="btn-next" onclick="goStep(5)">Rever cadastro<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- STEP 5: Confirmação -->
+  <div class="section" id="step5">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-icon"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+        <div><h2>Revisão final</h2><p>Confirme os dados antes de submeter</p></div>
+      </div>
+      <div class="card-body">
+        <div class="summary-grid" id="summaryGrid"></div>
+      </div>
+    </div>
+    <div class="card" style="border-color:#E67E22;">
+      <div class="card-body" style="padding:.9rem 1.25rem">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E67E22" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <p style="font-size:13px;color:var(--muted);line-height:1.6">Ao submeter, o cadastro será enviado para aprovação pela equipa FarmaFind. Receberá um email de confirmação com as credenciais de acesso ao portal. A activação pode demorar até <strong style="color:var(--text)">24 horas úteis</strong>.</p>
+        </div>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn-back" onclick="goStep(4)">Voltar</button>
+      <button class="btn-next" id="btnSubmit" onclick="submitForm()">Submeter cadastro<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h2>Cadastro submetido!</h2>
+    <p>A tua farmácia foi registada com sucesso. A equipa FarmaFind irá rever e activar a conta em breve.</p>
+    <div class="success-code" id="successCode">FF-XXXX</div>
+    <p style="font-size:12px;margin-top:.5rem;">Guarda este código — é o teu número de referência.</p>
+    <br>
+    <button class="btn-next" style="margin:0 auto" onclick="sendPrompt('O meu cadastro FarmaFind foi concluído. Quais são os próximos passos para adicionar medicamentos ao stock?')">Ver próximos passos ↗</button>
+  </div>
+</div>
+<script>
+  export {fNome};
+const API_BASE = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/api/v1'
+  : 'https://farmafind-api.onrender.com/api/v1'; // ← actualizar após deploy
+
+let SUPABASE_URL = '';
+let SUPABASE_KEY = '';
+let supabaseClient = null;
+let supabaseClientReady = null;
+
+async function loadSupabaseConfig() {
+  if (supabaseClient) return supabaseClient;
+  const res = await fetch('/config');
+  if (!res.ok) throw new Error('Não foi possível carregar a configuração do Supabase.');
+  const cfg = await res.json();
+  SUPABASE_URL = cfg.supabaseUrl;
+  SUPABASE_KEY = cfg.supabaseAnonKey;
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  return supabaseClient;
+}
+
+// Promise que aguarda a config estar pronta
+supabaseClientReady = loadSupabaseConfig().catch(err => {
+  console.error('Erro ao carregar config do Supabase:', err);
+  return null;
+});
+
+let cur=1;
+const total=5;
+
+document.querySelectorAll('.day-chip').forEach(c=>{
+  c.addEventListener('click',()=>c.classList.toggle('on'));
+});
+
+document.getElementById('fNome').addEventListener('input',function(){
+  const slug=this.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-');
+  document.getElementById('fSlug').value=slug;
+});
+
+
+
+document.getElementById('logoInput').addEventListener('change',function(){
+  const f=this.files[0];
+  if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const img=document.getElementById('logoPreview');
+    img.src=e.target.result;
+    img.style.display='block';
+    document.getElementById('uploadTxt').textContent=f.name;
+  };
+  r.readAsDataURL(f);
+});
+
+function useCurrentLocation(){
+  if(!navigator.geolocation){alert('Geolocalização não suportada.');return;}
+  navigator.geolocation.getCurrentPosition(p=>{
+    document.getElementById('fLat').value=p.coords.latitude.toFixed(6);
+    document.getElementById('fLon').value=p.coords.longitude.toFixed(6);
+  },()=>alert('Não foi possível obter localização. Insira manualmente.'));
+}
+
+function validate(step){
+  let ok=true;
+  const show=(id,vis)=>{const el=document.getElementById(id);if(el){el.classList[vis?'add':'remove']('show');el.style.display=vis?'block':'none';}};
+  const err=(fid,eid,cond)=>{const f=document.getElementById(fid);if(f){f.classList[cond?'add':'remove']('err');}show(eid,cond);if(cond)ok=false;};
+  if(step===1){
+    err('fNome','eNome',!document.getElementById('fNome').value.trim());
+    err('fSlug','eSlug',!/^[a-z0-9-]+$/.test(document.getElementById('fSlug').value.trim()));
+    err('fNuit','eNuit',!document.getElementById('fNuit').value.trim());
+    const em=document.getElementById('fEmail').value.trim();
+    err('fEmail','eEmail',!em||!em.includes('@'));
+    err('fTel','eTel',!document.getElementById('fTel').value.trim());
+    const pw=document.getElementById('fPass').value;
+    err('fPass','ePass',pw.length<8);
+  }
+  if(step===2){
+    err('fMorada','eMorada',!document.getElementById('fMorada').value.trim());
+    const lat=parseFloat(document.getElementById('fLat').value);
+    const lon=parseFloat(document.getElementById('fLon').value);
+    if(document.getElementById('fLat').value&&document.getElementById('fLon').value){
+      const bad=lat<-27||lat>-10||lon<30||lon>41;
+      const el=document.getElementById('eCoords');
+      if(el){el.style.display=bad?'block':'none';}
+      if(bad)ok=false;
+    }
+  }
+  return ok;
+}
+
+function goStep(n){
+  if(n>cur&&!validate(cur))return;
+  document.getElementById('step'+cur).classList.remove('show');
+  if(n===5)buildSummary();
+  cur=n;
+  document.getElementById('step'+cur).classList.add('show');
+  updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateProgress(){
+  for(let i=1;i<=5;i++){
+    const c=document.getElementById('sc'+i);
+    const l=document.getElementById('sl'+i);
+    c.classList.remove('active','done');
+    l.classList.remove('active');
+    if(i<cur){c.classList.add('done');c.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';}
+    else if(i===cur){c.classList.add('active');c.textContent=i;l.classList.add('active');}
+    else{c.textContent=i;}
+    if(i<=4){const ln=document.getElementById('line'+i);if(ln)ln.classList[i<cur?'add':'remove']('done');}
+  }
+}
+
+function buildSummary(){
+  const v=id=>document.getElementById(id)?.value||'—';
+  const days=[...document.querySelectorAll('.day-chip.on')].map(d=>d.textContent).join(', ')||'Nenhum';
+  const servs=[];
+  if(document.getElementById('tReservas')?.checked)servs.push('Reservas online');
+  if(document.getElementById('tReceitas')?.checked)servs.push('Receitas digitais');
+  if(document.getElementById('tWhatsapp')?.checked)servs.push('Alertas WhatsApp');
+  if(document.getElementById('tVisivel')?.checked)servs.push('Visível no mapa');
+  const rows=[
+    ['Nome comercial',v('fNome')],
+    ['Slug / URL',v('fSlug')],
+    ['NUIT',v('fNuit')],
+    ['Email',v('fEmail')],
+    ['Telefone',v('fTel')],
+    ['WhatsApp',v('fWhatsapp')||'Não definido'],
+    ['Cidade',v('fCidade')],
+    ['Morada',v('fMorada')],
+    ['Coordenadas',v('fLat')&&v('fLon')?`${v('fLat')}, ${v('fLon')}`:'Não definidas'],
+    ['Dias',days],
+    ['Horário',`${v('fAbertura')} — ${v('fFecho')}`],
+    ['24h / Urgências',document.getElementById('fAberta24')?.checked?'Sim':'Não'],
+    ['Serviços activos',servs.join(' · ')||'—'],
+    ['Farmácia activa',document.getElementById('tAtiva')?.checked?'Sim':'Não'],
+  ];
+  document.getElementById('summaryGrid').innerHTML=rows.map(([k,val])=>`
+    <div class="sum-row">
+      <div class="sum-key">${k}</div>
+      <div class="sum-val">${val}</div>
+    </div>`).join('');
+}
+
+function submitForm(){
+  const btn=document.getElementById('btnSubmit');
+  btn.disabled=true;btn.textContent='A submeter...';
+
+  // Coletar dados
+  const data = {
+    nome: document.getElementById('fNome').value.trim(),
+    slug: document.getElementById('fSlug').value.trim(),
+    nuit: document.getElementById('fNuit').value.trim(),
+    email: document.getElementById('fEmail').value.trim(),
+    tel: document.getElementById('fTel').value.trim(),
+    password: document.getElementById('fPass').value,
+    whatsapp: document.getElementById('fWhatsapp').value.trim() || null,
+    cidade: document.getElementById('fCidade').value.trim(),
+    morada: document.getElementById('fMorada').value.trim(),
+    lat: document.getElementById('fLat').value.trim() || null,
+    lon: document.getElementById('fLon').value.trim() || null,
+    logo_base64: document.getElementById('logoPreview').src.startsWith('data:') ? document.getElementById('logoPreview').src : null,
+    horarios: {
+      dias: [...document.querySelectorAll('.day-chip.on')].map(d => d.dataset.d),
+      abertura: document.getElementById('fAbertura').value,
+      fecho: document.getElementById('fFecho').value,
+      especial: document.getElementById('fHorarioEsp').value.trim() || null,
+      urgencia24: document.getElementById('fAberta24').checked
+    },
+    servicos: {
+      reservas_online: document.getElementById('tReservas').checked,
+      receitas_digitais: document.getElementById('tReceitas').checked,
+      whatsapp_alertas: document.getElementById('tWhatsapp').checked,
+      visivel_mapa: document.getElementById('tVisivel').checked,
+      activa: document.getElementById('tAtiva').checked
+    },
+    notas: document.getElementById('fNotas').value.trim() || null
+  };
+
+  // Submeter
+  fetch(`${API_BASE}/cadastrar-farmacia`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(async result => {
+    if (result.success) {
+      // Sucesso - definir sessão e redirecionar
+      await supabaseClientReady;
+      if (!supabaseClient) throw new Error('Supabase não foi inicializado.');
+      supabaseClient.auth.setSession({
+        access_token: result.session.access_token,
+        refresh_token: result.session.refresh_token
+      });
+      
+      document.getElementById('step5').classList.remove('show');
+      document.getElementById('progressBar').style.display='none';
+      document.getElementById('successCode').textContent = 'FF-' + result.farmacia_id;
+      document.getElementById('successScreen').style.display='block';
+      
+      // Redirecionar para farmacias.html após 2 segundos
+      setTimeout(() => {
+        window.location.href = 'farmacias.html';
+      }, 2000);
+    } else {
+      throw new Error(result.error || 'Erro desconhecido');
+    }
+  })
+  .catch(err => {
+    alert('Erro ao submeter cadastro: ' + err.message);
+    btn.disabled=false;btn.textContent='Submeter cadastro';
+  });
+}
+</script>
+</body>
+</html>
+
+
+
+
+
+
+

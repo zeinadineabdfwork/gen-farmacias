@@ -1,0 +1,31 @@
+# render.yaml — Deploy automático no Render.com
+services:
+  - type: web
+    name: farmafind-api
+    env: node
+    region: oregon          # Escolher a região mais próxima
+    plan: starter           # Começa gratuito, escala conforme necessário
+    buildCommand: npm ci
+    startCommand: node src/server.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false         # Definir manualmente no dashboard Render
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: FINGERPRINT_SECRET
+        sync: false
+      - key: REDIS_URL
+        sync: false
+ 
+  - type: redis
+    name: farmafind-redis
+    plan: starter
+    maxmemoryPolicy: allkeys-lru
