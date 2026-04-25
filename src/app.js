@@ -12,32 +12,50 @@ const app = express();
 
 // ── SEGURANÇA BASE ───────────────────────────────────────
 app.use(express.static('public'));
-app.use(helmet());                   // Headers HTTP de segurança
-app.use(compression());              // GZIP — crítico para redes lentas
-app.set('trust proxy', 1);           // Render usa proxy reverso
 
-app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || [],
-  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+// Ajuste no Helmet: desativamos o CSP para evitar bloqueios no frontend do Render
+// e configuramos a política de recursos cross-origin para permitir o acesso.
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-app.use(express.json({ limit: '5mb' }));  // limite para uploads base64
+app.use(compression()); 
+app.set('trust proxy', 1); // Essencial para o Render (proxy reverso)
+
+// ── CONFIGURAÇÃO DE CORS (O ponto crítico) ──────────────
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowed = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+    // Permite requisições sem origin (como mobile ou postman) ou se estiver na lista
+    if (!origin || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Bloqueado pelo CORS: Origem não permitida.'));
+    }
+  },
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'apikey'], // 'apikey' é obrigatório para o Supabase
+  credentials: true,
+  optionsSuccessStatus: 204
+}));
+
+app.use(express.json({ limit: '5mb' }));
 app.use(globalRateLimiter);
 app.use(requestLogger);
 
 // ── ROTAS ────────────────────────────────────────────────
 
-// Favicon (evita 404 no console)
+// Favicon (evita 204/404 desnecessário no log)
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-// 1. Rota Raiz (Resolve o "Cannot GET /")
+// 1. Rota Raiz
 app.get('/', (req, res) => {
   res.json({
     projeto: "FarmaFind API",
     status: "Operacional",
     versao: "1.0.0",
-    documentacao: "/api/v1"
+    ambiente: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -48,7 +66,7 @@ app.get('/health', (_, res) => res.json({
   timestamp: new Date().toISOString() 
 }));
 
-// 2.1. Configuração pública para o frontend
+// 3. Configuração para o frontend (Use apenas se necessário!)
 app.get('/config', (_req, res) => {
   res.json({
     supabaseUrl: process.env.SUPABASE_URL,
@@ -56,7 +74,7 @@ app.get('/config', (_req, res) => {
   });
 });
 
-// 3. Rotas da API
+// 4. Rotas da API
 app.use('/api/v1', publicRouter);
 app.use('/api/v1/farmacia', farmaciaRouter);
 
