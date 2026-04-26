@@ -799,7 +799,9 @@ async function marcarPago(id) {
   if (!confirm('Confirmar recebimento do pagamento e abater stock?')) return;
   try {
     await apiCall(`/reservas/${id}/pagar`, { method: 'PATCH' });
-    await loadReservas(); await loadDashboard();
+    await loadReservas();
+    await loadDashboard();
+    await loadStock();
     showToast('Pagamento registado e stock abatido!', 'success');
   } catch (err) { showToast('Erro: ' + err.message, 'error'); }
 }
