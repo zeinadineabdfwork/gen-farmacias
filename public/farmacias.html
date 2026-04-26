@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#004D3B">
-<title>FarmaFind — Portal da Farmácia</title>
+<title>FarmaFind â€” Portal da FarmÃ¡cia</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Supabase JS para autenticação -->
+<!-- Supabase JS para autenticaÃ§Ã£o -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
 <style>
@@ -33,7 +33,7 @@ line-height:1.55;
 -webkit-font-smoothing:antialiased;
 }
 
-/* ── LOGIN SCREEN ─────────────────────────────────────────── */
+/* â”€â”€ LOGIN SCREEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #loginScreen{
   min-height:100vh;
   display:flex;
@@ -113,7 +113,7 @@ line-height:1.55;
 .btn-login:disabled{opacity:.6;cursor:not-allowed;}
 .login-error{background:var(--danger-light);border:1px solid var(--danger);border-radius:var(--radius-sm);padding:10px 14px;font-size:.82rem;color:var(--danger);margin-bottom:1rem;display:none;}
 
-/* ── ADMIN LAYOUT ─────────────────────────────────────────── */
+/* â”€â”€ ADMIN LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #adminApp{display:none;min-height:100vh;}
 .admin-grid{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
 .admin-sidebar{background:var(--primary-dark);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto;}
@@ -129,6 +129,11 @@ line-height:1.55;
 .admin-nav-item svg{width:16px;height:16px;flex-shrink:0;}
 .admin-nav-divider{height:1px;background:rgba(255,255,255,.1);margin:8px 4px;}
 .notif-count{margin-left:auto;background:var(--danger);color:white;font-size:.65rem;font-weight:800;padding:1px 6px;border-radius:100px;}
+.admin-nav-item.has-live-alert{background:rgba(230,126,34,.18);color:#FFD9A8;box-shadow:inset 0 0 0 1px rgba(230,126,34,.42);}
+.admin-nav-item.has-live-alert .notif-count{background:var(--warning);color:#3D2400;}
+.nav-alert-light{width:10px;height:10px;border-radius:50%;background:transparent;box-shadow:none;transition:var(--t);margin-left:auto;}
+.nav-alert-light.is-on{background:var(--warning);box-shadow:0 0 0 4px rgba(230,126,34,.18),0 0 14px rgba(230,126,34,.55);animation:pulseAlert 1.5s infinite;}
+@keyframes pulseAlert{0%{transform:scale(1);opacity:1;}70%{transform:scale(1.18);opacity:.82;}100%{transform:scale(1);opacity:1;}}
 .btn-logout{margin-top:auto;padding:9px 12px;border-radius:9px;color:rgba(255,255,255,.5);cursor:pointer;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:8px;transition:var(--t);border:none;background:none;width:100%;}
 .btn-logout:hover{background:rgba(220,53,69,.2);color:#FF8888;}
 .btn-logout svg{width:14px;height:14px;}
@@ -177,6 +182,27 @@ line-height:1.55;
 .panel-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);}
 .panel-title{font-size:.9rem;font-weight:700;}
 .chart-box{padding:1rem 1.25rem 1.25rem;}
+.panel-body{padding:1rem 1.25rem 1.25rem;}
+.dashboard-highlight{display:grid;grid-template-columns:1.2fr .8fr;gap:1rem;margin-bottom:1rem;}
+.hero-panel{background:linear-gradient(135deg,#0E7A5F 0%,#169B7C 55%,#C7F1E4 140%);color:white;border:none;position:relative;overflow:hidden;}
+.hero-panel .panel-header{background:transparent;border-bottom:none;padding-bottom:.25rem;}
+.hero-panel .panel-title{color:white;}
+.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;}
+.hero-kpi{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:.9rem;}
+.hero-kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.75);}
+.hero-kpi-value{font-family:'DM Serif Display',serif;font-size:1.8rem;line-height:1.05;margin-top:.25rem;}
+.hero-kpi-sub{font-size:.74rem;color:rgba(255,255,255,.78);margin-top:.2rem;}
+.compact-list{display:flex;flex-direction:column;gap:.75rem;}
+.compact-row{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:.8rem .95rem;border:1px solid var(--border);border-radius:12px;background:linear-gradient(180deg,#FFFFFF 0%,#FBFCFD 100%);}
+.compact-row-main{min-width:0;}
+.compact-row-title{font-size:.84rem;font-weight:700;color:var(--text);}
+.compact-row-sub{font-size:.74rem;color:var(--text-muted);margin-top:.2rem;line-height:1.45;}
+.compact-row-meta{text-align:right;white-space:nowrap;}
+.compact-row-value{font-size:.86rem;font-weight:800;color:var(--text);}
+.compact-row-rank{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 7px;border-radius:999px;background:var(--warning-light);color:#8A4F08;font-size:.72rem;font-weight:800;}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.weekly-table-wrap{overflow-x:auto;}
+.empty-inline{font-size:.8rem;color:var(--text-muted);padding:.75rem 0;}
 
 /* table */
 .data-table{width:100%;border-collapse:collapse;}
@@ -263,17 +289,17 @@ line-height:1.55;
 </head>
 <body>
 
-<!-- ── LOGIN ──────────────────────────────────────────────── -->
+<!-- â”€â”€ LOGIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
       <div class="login-logo-mark"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></div>
       <div class="login-logo-name">Farma<span>Find</span></div>
     </div>
-    <p class="login-sub">Portal da Farmácia — Acesso Restrito</p>
+    <p class="login-sub">Portal da FarmÃ¡cia â€” Acesso Restrito</p>
     <div id="loginError" class="login-error"></div>
     <div class="login-field"><label class="login-label">Email</label><input type="email" id="loginEmail" class="login-input" placeholder="admin@suafarmacia.co.mz" autocomplete="email"/></div>
-    <div class="login-field"><label class="login-label">Palavra-passe</label><input type="password" id="loginPass" class="login-input" placeholder="••••••••" autocomplete="current-password"/></div>
+    <div class="login-field"><label class="login-label">Palavra-passe</label><input type="password" id="loginPass" class="login-input" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password"/></div>
     <button class="btn-login" id="btnLogin" onclick="doLogin()">Entrar no Portal</button>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;">
       <a class="btn-recover" href="farmafind_cadastro_farmacias.html" style="margin:0;width:auto;padding:0;font-size:.8rem;">Criar Conta</a>
@@ -282,17 +308,17 @@ line-height:1.55;
   </div>
 </div>
 
-<!-- ── MODAL RECUPERAÇÃO DE PALAVRA-PASSE ─────────────────── -->
+<!-- â”€â”€ MODAL RECUPERAÃ‡ÃƒO DE PALAVRA-PASSE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div class="modal-overlay" id="forgotModal">
   <div class="modal" role="dialog" aria-labelledby="forgotTitle" style="max-width:420px;">
     <div class="modal-header">
       <h2 id="forgotTitle" style="font-size:.95rem;">Recuperar palavra-passe</h2>
-      <button class="modal-close" onclick="closeForgotModal()">✕</button>
+      <button class="modal-close" onclick="closeForgotModal()">âœ•</button>
     </div>
     <div class="modal-body">
       <p style="font-size:.83rem;color:var(--text-muted);margin-bottom:1.2rem;line-height:1.6;">Introduza o seu email de administrador. Enviaremos um link para redefinir a sua palavra-passe.</p>
       <div id="forgotSuccess" style="display:none;background:var(--success-light);border:1px solid var(--success);border-radius:var(--radius-sm);padding:12px 14px;font-size:.82rem;color:var(--success);margin-bottom:1rem;">
-        ✓ Email enviado! Verifique a sua caixa de entrada (e a pasta de spam).
+        âœ“ Email enviado! Verifique a sua caixa de entrada (e a pasta de spam).
       </div>
       <div id="forgotError" style="display:none;background:var(--danger-light);border:1px solid var(--danger);border-radius:var(--radius-sm);padding:10px 14px;font-size:.82rem;color:var(--danger);margin-bottom:1rem;"></div>
       <div id="forgotForm">
@@ -309,7 +335,7 @@ line-height:1.55;
   </div>
 </div>
 
-<!-- ── ADMIN APP ───────────────────────────────────────────── -->
+<!-- â”€â”€ ADMIN APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div id="adminApp">
   <div class="admin-grid">
     <!-- Sidebar -->
@@ -317,15 +343,15 @@ line-height:1.55;
       <div class="admin-logo">Farma<span>Find</span></div>
       <div class="admin-profile">
         <div class="admin-avatar" id="sideAvatar">FF</div>
-        <div><div class="admin-name" id="sideName">Carregando...</div><div class="admin-role" id="sideRole">Portal da Farmácia</div></div>
+        <div><div class="admin-name" id="sideName">Carregando...</div><div class="admin-role" id="sideRole">Portal da FarmÃ¡cia</div></div>
       </div>
       <button class="admin-nav-item active" onclick="adminNav('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
-      <button class="admin-nav-item" onclick="adminNav('stock',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Gestão de Stock</button>
+      <button class="admin-nav-item" onclick="adminNav('stock',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>GestÃ£o de Stock</button>
       <button class="admin-nav-item" onclick="adminNav('reservas',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>Reservas</button>
       <div class="admin-nav-divider"></div>
-      <button class="admin-nav-item" onclick="adminNav('notificacoes',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notificações<span class="notif-count" id="adminNotifCount" style="display:none">0</span></button>
+      <button class="admin-nav-item" id="notifNavBtn" onclick="adminNav('notificacoes',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>NotificaÃ§Ãµes<span class="nav-alert-light" id="notifLiveLight"></span><span class="notif-count" id="adminNotifCount" style="display:none">0</span></button>
       <div class="admin-nav-divider"></div>
-      <button class="btn-logout" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Terminar sessão</button>
+      <button class="btn-logout" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Terminar sessÃ£o</button>
     </div>
 
     <!-- Main -->
@@ -341,36 +367,61 @@ line-height:1.55;
           <div class="stat-card"><div class="skeleton" style="height:36px;width:36px;border-radius:9px;margin-bottom:10px"></div><div class="skeleton" style="height:10px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:50%"></div></div>
           <div class="stat-card"><div class="skeleton" style="height:36px;width:36px;border-radius:9px;margin-bottom:10px"></div><div class="skeleton" style="height:10px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:50%"></div></div>
         </div>
+        <div class="dashboard-highlight">
+          <div class="panel hero-panel">
+            <div class="panel-header"><span class="panel-title">Resumo operacional</span></div>
+            <div class="panel-body"><div class="hero-grid" id="dashHeroGrid"></div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Top 10 produtos vendidos</span></div>
+            <div class="panel-body"><div id="topProductsList" class="compact-list"></div></div>
+          </div>
+        </div>
         <div class="admin-panels">
           <div class="panel"><div class="panel-header"><span class="panel-title">Reservas da semana</span></div><div class="chart-box"><canvas id="weekChart" height="120"></canvas></div></div>
           <div class="panel"><div class="panel-header"><span class="panel-title">Alertas de stock</span></div><div id="dashAlerts" style="padding:.5rem 0"></div></div>
+        </div>
+        <div class="insight-grid">
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Reservas recentes da semana</span></div>
+            <div class="panel-body weekly-table-wrap">
+              <table class="data-table">
+                <thead><tr><th>CÃ³digo</th><th>Utente</th><th>Itens</th><th>Estado</th><th>Total</th><th>Data</th></tr></thead>
+                <tbody id="weekReservationsBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Pulso do negÃ³cio</span></div>
+            <div class="panel-body"><div id="businessInsights" class="compact-list"></div></div>
+          </div>
         </div>
       </div>
 
       <!-- STOCK -->
       <div class="admin-section" id="section-stock">
-        <div class="admin-page-title">Gestão de Stock</div>
-        <div class="admin-page-sub">Adicione e actualize medicamentos. Mínimo obrigatório: 100 cartelas.</div>
+        <div class="admin-page-title">GestÃ£o de Stock</div>
+        <div class="admin-page-sub">Adicione e actualize medicamentos. MÃ­nimo obrigatÃ³rio: 100 cartelas.</div>
         <div class="panel" style="margin-bottom:1rem">
           <div class="panel-header"><span class="panel-title">Medicamentos em Stock</span><button class="btn-add-green" onclick="openStockModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button></div>
-          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Medicamento</th><th>Categoria</th><th>Cartelas</th><th>Nível</th><th>Preço (MT)</th><th>Acções</th></tr></thead><tbody id="stockTableBody"></tbody></table></div>
+          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Medicamento</th><th>Categoria</th><th>Cartelas</th><th>NÃ­vel</th><th>PreÃ§o (MT)</th><th>AcÃ§Ãµes</th></tr></thead><tbody id="stockTableBody"></tbody></table></div>
         </div>
       </div>
 
       <!-- RESERVAS -->
       <div class="admin-section" id="section-reservas">
         <div class="admin-page-title">Reservas</div>
-        <div class="admin-page-sub">Gerencie reservas dos utentes. Após pagamento presencial, marque como pago.</div>
+        <div class="admin-page-sub">Gerencie reservas dos utentes. ApÃ³s pagamento presencial, marque como pago.</div>
         <div class="panel">
-          <div class="panel-header"><span class="panel-title">Lista de Reservas</span><span class="results-count" id="reservasCount">—</span></div>
-          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Código</th><th>Utente</th><th>Medicamentos</th><th>Data</th><th>Total</th><th>Estado</th><th>Receita</th><th>Acção</th></tr></thead><tbody id="reservasTableBody"></tbody></table></div>
+          <div class="panel-header"><span class="panel-title">Lista de Reservas</span><span class="results-count" id="reservasCount">â€”</span></div>
+          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>CÃ³digo</th><th>Utente</th><th>Medicamentos</th><th>Data</th><th>Total</th><th>Estado</th><th>Receita</th><th>AcÃ§Ã£o</th></tr></thead><tbody id="reservasTableBody"></tbody></table></div>
         </div>
       </div>
 
-      <!-- NOTIFICAÇÕES -->
+      <!-- NOTIFICAÃ‡Ã•ES -->
       <div class="admin-section" id="section-notificacoes">
-        <div class="admin-page-title">Notificações</div>
-        <div class="admin-page-sub">Alertas automáticos de stock crítico — emitidos quando desce abaixo de 100 cartelas.</div>
+        <div class="admin-page-title">NotificaÃ§Ãµes</div>
+        <div class="admin-page-sub">Alertas automÃ¡ticos de stock crÃ­tico â€” emitidos quando desce abaixo de 100 cartelas.</div>
         <div class="panel"><div class="panel-header"><span class="panel-title">Alertas recentes</span></div><div id="notifList" style="padding:.5rem 0"></div></div>
       </div>
 
@@ -381,20 +432,20 @@ line-height:1.55;
 <!-- STOCK MODAL -->
 <div class="modal-overlay" id="stockModal">
   <div class="modal">
-    <div class="modal-header"><h2 id="stockModalTitle">Adicionar Medicamento</h2><button class="modal-close" onclick="closeModal('stockModal')">✕</button></div>
+    <div class="modal-header"><h2 id="stockModalTitle">Adicionar Medicamento</h2><button class="modal-close" onclick="closeModal('stockModal')">âœ•</button></div>
     <div class="modal-body">
       <div class="form-group"><label class="form-label">Nome do medicamento *</label><input type="text" id="fNome" class="form-control" placeholder="Ex: Amoxicilina 500mg"/></div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Categoria *</label><select id="fCat" class="form-control"><option>Antibióticos</option><option>Analgésicos</option><option>Anti-inflamatórios</option><option>Antidiabéticos</option><option>Antiparasitários</option><option>Antimaláricos</option><option>Cardiovascular</option><option>Gastrointestinal</option><option>Vitaminas/Suplementos</option><option>Outro</option></select></div>
+        <div class="form-group"><label class="form-label">Categoria *</label><select id="fCat" class="form-control"><option>AntibiÃ³ticos</option><option>AnalgÃ©sicos</option><option>Anti-inflamatÃ³rios</option><option>AntidiabÃ©ticos</option><option>AntiparasitÃ¡rios</option><option>AntimalÃ¡ricos</option><option>Cardiovascular</option><option>Gastrointestinal</option><option>Vitaminas/Suplementos</option><option>Outro</option></select></div>
         <div class="form-group"><label class="form-label">Dosagem</label><input type="text" id="fDosagem" class="form-control" placeholder="Ex: 500mg"/></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Cartelas em stock *</label><input type="number" id="fStock" class="form-control" min="0" placeholder="Ex: 300"/><div class="form-hint">Mínimo recomendado: 100</div></div>
-        <div class="form-group"><label class="form-label">Preço por cartela (MT) *</label><input type="number" id="fPreco" class="form-control" min="0" placeholder="Ex: 150"/></div>
+        <div class="form-group"><label class="form-label">Cartelas em stock *</label><input type="number" id="fStock" class="form-control" min="0" placeholder="Ex: 300"/><div class="form-hint">MÃ­nimo recomendado: 100</div></div>
+        <div class="form-group"><label class="form-label">PreÃ§o por cartela (MT) *</label><input type="number" id="fPreco" class="form-control" min="0" placeholder="Ex: 150"/></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Alerta mínimo (cartelas)</label><input type="number" id="fMinimo" class="form-control" value="100" min="100"/><div class="form-hint">Notificação abaixo deste valor</div></div>
-        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px"><label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="fReceita" style="width:16px;height:16px;accent-color:var(--primary)"/> Requer receita médica</label></div>
+        <div class="form-group"><label class="form-label">Alerta mÃ­nimo (cartelas)</label><input type="number" id="fMinimo" class="form-control" value="100" min="100"/><div class="form-hint">NotificaÃ§Ã£o abaixo deste valor</div></div>
+        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px"><label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="fReceita" style="width:16px;height:16px;accent-color:var(--primary)"/> Requer receita mÃ©dica</label></div>
       </div>
       <div id="stockModalError" style="display:none;background:var(--danger-light);border:1px solid var(--danger);border-radius:8px;padding:9px 13px;font-size:.8rem;color:var(--danger);margin-top:.5rem"></div>
     </div>
@@ -405,7 +456,7 @@ line-height:1.55;
 <!-- RECEITA MODAL -->
 <div class="modal-overlay" id="receitaModal">
   <div class="modal" style="max-width:460px">
-    <div class="modal-header"><h2>Receita Médica</h2><button class="modal-close" onclick="closeModal('receitaModal')">✕</button></div>
+    <div class="modal-header"><h2>Receita MÃ©dica</h2><button class="modal-close" onclick="closeModal('receitaModal')">âœ•</button></div>
     <div class="modal-body">
       <div id="receitaContent" class="receita-viewer"><p style="color:var(--text-muted);font-size:.85rem">A carregar receita...</p></div>
     </div>
@@ -426,7 +477,7 @@ let supabaseClientReady = null;
 async function loadSupabaseConfig() {
   if (supabaseClient) return supabaseClient;
   const res = await fetch('/config');
-  if (!res.ok) throw new Error('Não foi possível carregar a configuração do Supabase.');
+  if (!res.ok) throw new Error('NÃ£o foi possÃ­vel carregar a configuraÃ§Ã£o do Supabase.');
   const cfg = await res.json();
   SUPABASE_URL = cfg.supabaseUrl;
   SUPABASE_KEY = cfg.supabaseAnonKey;
@@ -452,6 +503,27 @@ let currentToken  = null;
 let weekChart     = null;
 let editingMedId  = null; // null = criar, string = editar
 let realtimeChannel = null;
+let currentFarmaciaId = null;
+let reservationAlertCount = 0;
+let latestDashboard = null;
+let latestReservas = [];
+
+function formatMoney(value) {
+  return Number(value || 0).toLocaleString('pt-MZ');
+}
+
+function updateReservationAlertUI() {
+  const navBtn = document.getElementById('notifNavBtn');
+  const liveLight = document.getElementById('notifLiveLight');
+  const badge = document.getElementById('adminNotifCount');
+  const stockAlerts = latestDashboard ? Number(latestDashboard.stock_critico || 0) : 0;
+  const total = stockAlerts + reservationAlertCount;
+
+  badge.textContent = total;
+  badge.style.display = total ? 'inline-block' : 'none';
+  navBtn.classList.toggle('has-live-alert', reservationAlertCount > 0);
+  liveLight.classList.toggle('is-on', reservationAlertCount > 0);
+}
 
 // ============================================================
 //  AUTH
@@ -470,7 +542,7 @@ async function doLogin() {
   btn.disabled = true; btn.textContent = 'A entrar...';
   try {
     await supabaseClientReady;
-    if (!supabaseClient) throw new Error('Supabase não foi inicializado.');
+    if (!supabaseClient) throw new Error('Supabase nÃ£o foi inicializado.');
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
     if (error) throw error;
     currentUser  = data.user;
@@ -489,9 +561,14 @@ async function doLogout() {
   if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
   await supabaseClient.auth.signOut();
   currentUser = null; currentToken = null;
+  currentFarmaciaId = null;
+  reservationAlertCount = 0;
+  latestDashboard = null;
+  latestReservas = [];
   document.getElementById('adminApp').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
-  showToast('Sessão terminada.');
+  updateReservationAlertUI();
+  showToast('SessÃ£o terminada.');
 }
 
 function showLoginError(msg) {
@@ -500,7 +577,7 @@ function showLoginError(msg) {
 }
 
 // ============================================================
-//  RECUPERAÇÃO DE PALAVRA-PASSE
+//  RECUPERAÃ‡ÃƒO DE PALAVRA-PASSE
 // ============================================================
 function openForgotModal() {
   document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value || '';
@@ -523,7 +600,7 @@ async function sendPasswordReset() {
   sucEl.style.display = 'none';
 
   if (!email || !email.includes('@')) {
-    errEl.textContent = 'Introduza um email válido.';
+    errEl.textContent = 'Introduza um email vÃ¡lido.';
     errEl.style.display = 'block';
     return;
   }
@@ -533,9 +610,9 @@ async function sendPasswordReset() {
 
   try {
     await supabaseClientReady;
-    if (!supabaseClient) throw new Error('Supabase não inicializado. Tente recarregar a página.');
+    if (!supabaseClient) throw new Error('Supabase nÃ£o inicializado. Tente recarregar a pÃ¡gina.');
 
-    // Determinar URL de redireccionamento correcto (produção ou local)
+    // Determinar URL de redireccionamento correcto (produÃ§Ã£o ou local)
     const redirectTo = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? `http://localhost:3000/reset-password.html`
       : `${window.location.origin}/reset-password.html`;
@@ -546,12 +623,12 @@ async function sendPasswordReset() {
 
     if (error) throw error;
 
-    // Mostrar sucesso e esconder formulário
+    // Mostrar sucesso e esconder formulÃ¡rio
     sucEl.style.display = 'block';
     document.getElementById('forgotForm').style.display = 'none';
     btn.style.display = 'none';
   } catch (err) {
-    errEl.textContent = err.message || 'Erro ao enviar email. Verifique o endereço.';
+    errEl.textContent = err.message || 'Erro ao enviar email. Verifique o endereÃ§o.';
     errEl.style.display = 'block';
   } finally {
     btn.disabled = false;
@@ -559,11 +636,11 @@ async function sendPasswordReset() {
   }
 }
 
-// Verificar sessão existente ao carregar
+// Verificar sessÃ£o existente ao carregar
 window.addEventListener('load', async () => {
   await supabaseClientReady;
   if (!supabaseClient) {
-    console.error('Supabase não foi inicializado.');
+    console.error('Supabase nÃ£o foi inicializado.');
     return;
   }
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -575,7 +652,7 @@ window.addEventListener('load', async () => {
 });
 
 // ============================================================
-//  INIT ADMIN (pós-login)
+//  INIT ADMIN (pÃ³s-login)
 // ============================================================
 async function initAdmin() {
   try {
@@ -585,7 +662,7 @@ async function initAdmin() {
     const email = currentUser.email || '';
     document.getElementById('sideAvatar').textContent = email.substring(0,2).toUpperCase();
     document.getElementById('sideName').textContent   = email;
-    document.getElementById('dashSub').textContent    = `Bem-vindo, ${email} — ${new Date().toLocaleDateString('pt-MZ', {weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
+    document.getElementById('dashSub').textContent    = `Bem-vindo, ${email} â€” ${new Date().toLocaleDateString('pt-MZ', {weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
     // Carregar dados
     await Promise.all([loadDashboard(), loadStock(), loadReservas()]);
     subscribeToReservas();
@@ -610,13 +687,16 @@ async function apiCall(path, options = {}) {
 }
 
 // ============================================================
-//  REALTIME — Supabase Realtime para novas reservas
+//  REALTIME â€” Supabase Realtime para novas reservas
 // ============================================================
 function subscribeToReservas() {
-  if (!supabaseClient) return; // Aguardar inicialização
+  if (!supabaseClient) return; // Aguardar inicializaÃ§Ã£o
   realtimeChannel = supabaseClient
     .channel('reservas-changes')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reservas' }, payload => {
+      if (currentFarmaciaId && payload.new.farmacia_id !== currentFarmaciaId) return;
+      reservationAlertCount += 1;
+      updateReservationAlertUI();
       showToast(`Nova reserva recebida: ${payload.new.codigo}`, 'success');
       loadReservas();
       loadDashboard();
@@ -631,40 +711,103 @@ async function loadDashboard() {
   try {
     const data = await apiCall('/dashboard');
     const d = data.dashboard;
+    latestDashboard = d;
+    currentFarmaciaId = d.farmacia_id || currentFarmaciaId;
     document.getElementById('statsGrid').innerHTML = `
       <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg></div><div class="stat-label">Reservas Hoje</div><div class="stat-value">${d.reservas_hoje}</div><div class="stat-sub" style="color:var(--warning)">${d.pendentes} pendentes</div></div>
-      <div class="stat-card"><div class="stat-icon" style="background:var(--success-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-label">Pagamentos</div><div class="stat-value">${d.pagas}</div><div class="stat-sub" style="color:var(--success)">${d.total_mt_hoje.toLocaleString()} MT hoje</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:var(--success-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-label">Pagamentos</div><div class="stat-value">${d.pagas}</div><div class="stat-sub" style="color:var(--success)">${formatMoney(d.total_mt_hoje)} MT hoje</div></div>
       <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/></svg></div><div class="stat-label">Medicamentos</div><div class="stat-value">${d.total_medicamentos}</div><div class="stat-sub" style="color:var(--text-muted)">em stock</div></div>
-      <div class="stat-card"><div class="stat-icon" style="background:var(--danger-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="stat-label">Stock Crítico</div><div class="stat-value">${d.stock_critico}</div><div class="stat-sub" style="color:var(--danger)">abaixo do mínimo</div></div>`;
+      <div class="stat-card"><div class="stat-icon" style="background:var(--danger-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="stat-label">Stock Critico</div><div class="stat-value">${d.stock_critico}</div><div class="stat-sub" style="color:var(--danger)">${d.stock_baixo || 0} em atencao</div></div>`;
+    document.getElementById('dashHeroGrid').innerHTML = `
+      <div class="hero-kpi"><div class="hero-kpi-label">Reservas na semana</div><div class="hero-kpi-value">${d.reservas_semana || 0}</div><div class="hero-kpi-sub">movimento real dos ultimos 7 dias</div></div>
+      <div class="hero-kpi"><div class="hero-kpi-label">Faturacao da semana</div><div class="hero-kpi-value">${formatMoney(d.faturacao_semana)} MT</div><div class="hero-kpi-sub">somente pedidos pagos</div></div>
+      <div class="hero-kpi"><div class="hero-kpi-label">Fila activa</div><div class="hero-kpi-value">${d.pendentes || 0}</div><div class="hero-kpi-sub">levantamentos ainda pendentes hoje</div></div>`;
+    renderTopProducts(d.top_produtos || []);
+    renderWeekReservations(d.reservas_recentes_semana || []);
+    renderBusinessInsights(d);
     // Alertas
     const alertsEl = document.getElementById('dashAlerts');
     if (!d.alertas || !d.alertas.length) {
-      alertsEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text" style="color:var(--success)">Sem alertas críticos.</div></div>`;
+      alertsEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text" style="color:var(--success)">Sem alertas crÃ­ticos.</div></div>`;
     } else {
-      alertsEl.innerHTML = d.alertas.map(a => `<div class="notif-item"><div class="notif-dot ${a.stock_nivel==='critico'?'dot-danger':'dot-warning'}"></div><div><div class="notif-text"><strong>${a.nome}</strong> ${a.dosagem||''} — ${a.stock_atual}/${a.stock_minimo} cartelas</div><div class="notif-time">Reabastecimento necessário</div></div></div>`).join('');
+      alertsEl.innerHTML = d.alertas.map(a => `<div class="notif-item"><div class="notif-dot ${a.stock_nivel==='critico'?'dot-danger':'dot-warning'}"></div><div><div class="notif-text"><strong>${a.nome}</strong> ${a.dosagem||''} â€” ${a.stock_atual}/${a.stock_minimo} cartelas</div><div class="notif-time">Reabastecimento necessÃ¡rio</div></div></div>`).join('');
     }
-    // Badge notificações
-    const criticos = d.stock_critico || 0;
-    const badge = document.getElementById('adminNotifCount');
-    badge.textContent = criticos; badge.style.display = criticos ? 'inline-block' : 'none';
-    // Chart
-    renderWeekChart();
+    // Badge notificaÃ§Ãµes
+    updateReservationAlertUI();
+    renderWeekChart(d.week_series || []);
   } catch (err) { showToast('Erro ao carregar dashboard: ' + err.message, 'error'); }
 }
 
-function renderWeekChart() {
+function renderWeekChart(series) {
   const ctx = document.getElementById('weekChart');
   if (!ctx) return;
   if (weekChart) { weekChart.destroy(); }
-  // Dados ilustrativos — numa versão futura vir da API
   weekChart = new Chart(ctx.getContext('2d'), {
     type: 'line',
     data: {
-      labels: ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
-      datasets: [{ label: 'Reservas', data: [8,14,11,19,24,18,12], borderColor: '#007A5E', backgroundColor: 'rgba(0,122,94,.08)', tension: 0.4, fill: true, pointBackgroundColor: '#007A5E', pointRadius: 4 }]
+      labels: series.map(item => item.label),
+      datasets: [
+        { label: 'Reservas', data: series.map(item => item.reservas), borderColor: '#007A5E', backgroundColor: 'rgba(0,122,94,.08)', tension: 0.4, fill: true, pointBackgroundColor: '#007A5E', pointRadius: 4 },
+        { label: 'Pagas', data: series.map(item => item.pagos), borderColor: '#E67E22', backgroundColor: 'rgba(230,126,34,.08)', tension: 0.35, fill: false, pointBackgroundColor: '#E67E22', pointRadius: 3 }
+      ]
     },
-    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#F0F4F8' }, ticks: { font: { size: 11 } } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
+    options: { responsive: true, plugins: { legend: { display: true, position: 'bottom' } }, scales: { y: { beginAtZero: true, grid: { color: '#F0F4F8' }, ticks: { font: { size: 11 }, precision: 0 } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
   });
+}
+
+function renderTopProducts(produtos) {
+  const el = document.getElementById('topProductsList');
+  if (!produtos.length) {
+    el.innerHTML = `<div class="empty-inline">Ainda nao ha vendas suficientes para formar o top 10.</div>`;
+    return;
+  }
+  el.innerHTML = produtos.map((produto, index) => `
+    <div class="compact-row">
+      <div class="compact-row-main">
+        <div class="compact-row-title">${produto.nome}</div>
+        <div class="compact-row-sub">${produto.unidades_vendidas} cartela${produto.unidades_vendidas !== 1 ? 's' : ''} vendida${produto.unidades_vendidas !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="compact-row-meta">
+        <div class="compact-row-rank">#${index + 1}</div>
+        <div class="compact-row-sub">${formatMoney(produto.receita_total)} MT</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderWeekReservations(reservas) {
+  const tbody = document.getElementById('weekReservationsBody');
+  if (!reservas.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:1.5rem">Nenhuma reserva nesta semana.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = reservas.map((reserva) => `
+    <tr>
+      <td><code style="font-size:.75rem;font-weight:800;color:var(--primary);background:var(--primary-light);padding:2px 7px;border-radius:4px">${reserva.codigo}</code></td>
+      <td><strong>${reserva.cliente_nome}</strong><br><span style="font-size:.72rem;color:var(--text-muted)">${reserva.cliente_tel || 'Sem telefone'}</span></td>
+      <td style="max-width:190px;font-size:.76rem">${reserva.itens_resumo || 'Sem itens'}</td>
+      <td><span class="status-badge badge-${reserva.status}">${statusLabel(reserva.status)}</span></td>
+      <td style="font-weight:700">${formatMoney(reserva.total_mt)} MT</td>
+      <td style="white-space:nowrap">${new Date(reserva.criada_em).toLocaleString('pt-MZ')}</td>
+    </tr>`).join('');
+}
+
+function renderBusinessInsights(d) {
+  const el = document.getElementById('businessInsights');
+  const mediaDiaria = Math.round(Number(d.faturacao_semana || 0) / 7);
+  const melhorDia = (d.week_series || []).reduce((best, day) => (!best || day.reservas > best.reservas ? day : best), null);
+  const items = [
+    { title: 'Fluxo desta semana', sub: `${d.reservas_semana || 0} reservas chegaram nos ultimos 7 dias`, value: `${formatMoney(mediaDiaria)} MT/dia` },
+    { title: 'Melhor dia', sub: melhorDia ? `${melhorDia.label}: ${melhorDia.reservas} reservas` : 'Sem movimento registado esta semana', value: melhorDia ? `${formatMoney(melhorDia.total_mt)} MT` : '0 MT' },
+    { title: 'Pressao no stock', sub: `${d.stock_critico || 0} criticos e ${d.stock_baixo || 0} em atencao`, value: `${d.total_medicamentos || 0} produtos activos` }
+  ];
+  el.innerHTML = items.map((item) => `
+    <div class="compact-row">
+      <div class="compact-row-main">
+        <div class="compact-row-title">${item.title}</div>
+        <div class="compact-row-sub">${item.sub}</div>
+      </div>
+      <div class="compact-row-meta"><div class="compact-row-value">${item.value}</div></div>
+    </div>`).join('');
 }
 
 // ============================================================
@@ -686,7 +829,7 @@ function renderStockTable(meds) {
     return `<tr>
       <td><strong>${m.nome}</strong>${m.dosagem ? ` <span style="font-size:.72rem;color:var(--text-muted)">${m.dosagem}</span>` : ''}</td>
       <td><span class="status-badge" style="background:var(--primary-light);color:var(--primary)">${m.categoria}</span></td>
-      <td>${m.stock_atual} <small style="color:var(--text-muted)">/ mín ${m.stock_minimo}</small></td>
+      <td>${m.stock_atual} <small style="color:var(--text-muted)">/ mÃ­n ${m.stock_minimo}</small></td>
       <td><div class="mini-bar-wrap"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${pct.toFixed(0)}%;background:${color}"></div></div><span style="font-size:.7rem;color:var(--text-muted);min-width:28px">${pct.toFixed(0)}%</span></div></td>
       <td>${Number(m.preco_mt).toLocaleString()} MT</td>
       <td style="display:flex;gap:6px">
@@ -701,7 +844,7 @@ function openStockModal() {
   editingMedId = null;
   document.getElementById('stockModalTitle').textContent = 'Adicionar Medicamento';
   document.getElementById('fNome').value = ''; document.getElementById('fNome').disabled = false;
-  document.getElementById('fCat').value = 'Antibióticos';
+  document.getElementById('fCat').value = 'AntibiÃ³ticos';
   document.getElementById('fDosagem').value = ''; document.getElementById('fStock').value = '';
   document.getElementById('fPreco').value = ''; document.getElementById('fMinimo').value = '100';
   document.getElementById('fReceita').checked = false;
@@ -733,8 +876,8 @@ async function saveStock() {
     requer_receita: document.getElementById('fReceita').checked,
   };
   if (!payload.nome) { showStockError('Insira o nome do medicamento.'); return; }
-  if (isNaN(payload.stock_atual) || isNaN(payload.preco_mt)) { showStockError('Preencha quantidade e preço.'); return; }
-  if (payload.stock_minimo < 100) { showStockError('O mínimo não pode ser inferior a 100 cartelas.'); return; }
+  if (isNaN(payload.stock_atual) || isNaN(payload.preco_mt)) { showStockError('Preencha quantidade e preÃ§o.'); return; }
+  if (payload.stock_minimo < 100) { showStockError('O mÃ­nimo nÃ£o pode ser inferior a 100 cartelas.'); return; }
   const btn = document.getElementById('btnSaveStock');
   btn.disabled = true; btn.textContent = 'A guardar...';
   try {
@@ -769,6 +912,7 @@ async function loadReservas() {
   try {
     const data = await apiCall('/reservas');
     const reservas = data.reservas || [];
+    latestReservas = reservas;
     document.getElementById('reservasCount').textContent = `${reservas.length} reserva${reservas.length !== 1 ? 's' : ''}`;
     renderReservasTable(reservas);
     renderNotificacoes(reservas);
@@ -780,7 +924,7 @@ function renderReservasTable(reservas) {
   if (!reservas.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem">Nenhuma reserva ainda.</td></tr>`; return; }
   tbody.innerHTML = reservas.map(r => {
     const items   = Array.isArray(r.itens) ? r.itens : [];
-    const itemStr = items.map(i => `${i.qty}× ${i.nome}`).join(', ');
+    const itemStr = items.map(i => `${i.qty}Ã— ${i.nome}`).join(', ');
     const total   = Number(r.total_mt);
     return `<tr>
       <td><code style="font-size:.78rem;font-weight:800;color:var(--primary);background:var(--primary-light);padding:2px 7px;border-radius:4px">${r.codigo}</code></td>
@@ -789,8 +933,8 @@ function renderReservasTable(reservas) {
       <td style="font-size:.78rem;white-space:nowrap">${new Date(r.criada_em).toLocaleString('pt-MZ')}</td>
       <td style="font-weight:700">${total.toLocaleString()} MT</td>
       <td><span class="status-badge badge-${r.status}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
-      <td>${r.receita_path ? `<button class="btn-icon" onclick="verReceita('${r.id}')" title="Ver receita"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>` : '<span style="color:var(--text-light);font-size:.75rem">—</span>'}</td>
-      <td>${r.status === 'pendente' ? `<button class="btn-mark-paid" onclick="marcarPago('${r.id}')">Marcar Pago</button>` : '—'}</td>
+      <td>${r.receita_path ? `<button class="btn-icon" onclick="verReceita('${r.id}')" title="Ver receita"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>` : '<span style="color:var(--text-light);font-size:.75rem">â€”</span>'}</td>
+      <td>${r.status === 'pendente' ? `<button class="btn-mark-paid" onclick="marcarPago('${r.id}')">Marcar Pago</button>` : 'â€”'}</td>
     </tr>`;
   }).join('');
 }
@@ -813,22 +957,23 @@ async function verReceita(id) {
     const data = await apiCall(`/reservas/${id}/receita`);
     const ext  = data.url?.split('.').pop()?.toLowerCase();
     if (ext === 'pdf') {
-      document.getElementById('receitaContent').innerHTML = `<p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem">Receita em formato PDF:</p><a class="receita-url-link" href="${data.url}" target="_blank"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Abrir PDF da Receita</a><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">Válido por 15 minutos.</p>`;
+      document.getElementById('receitaContent').innerHTML = `<p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem">Receita em formato PDF:</p><a class="receita-url-link" href="${data.url}" target="_blank"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Abrir PDF da Receita</a><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">VÃ¡lido por 15 minutos.</p>`;
     } else {
-      document.getElementById('receitaContent').innerHTML = `<img src="${data.url}" alt="Receita médica" onerror="this.outerHTML='<p style=color:var(--danger)>Erro ao carregar imagem.</p>'"/><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">Válido por 15 minutos.</p>`;
+      document.getElementById('receitaContent').innerHTML = `<img src="${data.url}" alt="Receita mÃ©dica" onerror="this.outerHTML='<p style=color:var(--danger)>Erro ao carregar imagem.</p>'"/><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">VÃ¡lido por 15 minutos.</p>`;
     }
   } catch (err) { document.getElementById('receitaContent').innerHTML = `<p style="color:var(--danger);font-size:.85rem">Erro: ${err.message}</p>`; }
 }
 
 // ============================================================
-//  NOTIFICAÇÕES
+//  NOTIFICAÃ‡Ã•ES
 // ============================================================
 function renderNotificacoes(reservas) {
   const pendentes = reservas.filter(r => r.status === 'pendente').length;
   const notifEl   = document.getElementById('notifList');
   const items = [];
+  if (reservationAlertCount) items.push({ type: 'warning', text: `${reservationAlertCount} nova${reservationAlertCount > 1 ? 's' : ''} reserva${reservationAlertCount > 1 ? 's' : ''} acabou de entrar pelo site.`, time: 'Em tempo real' });
   if (pendentes) items.push({ type: 'warning', text: `${pendentes} reserva${pendentes>1?'s':''} pendente${pendentes>1?'s':''} aguardam levantamento.`, time: 'Agora' });
-  if (!items.length) { notifEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text">Nenhuma notificação pendente.</div></div>`; return; }
+  if (!items.length) { notifEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text">Nenhuma notificaÃ§Ã£o pendente.</div></div>`; return; }
   notifEl.innerHTML = items.map(it => `<div class="notif-item"><div class="notif-dot dot-${it.type}"></div><div><div class="notif-text">${it.text}</div><div class="notif-time">${it.time}</div></div></div>`).join('');
 }
 
@@ -840,6 +985,11 @@ function adminNav(section, el) {
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('section-' + section).classList.add('active');
   el.classList.add('active');
+  if (section === 'notificacoes') {
+    reservationAlertCount = 0;
+    updateReservationAlertUI();
+    renderNotificacoes(latestReservas);
+  }
   if (section === 'reservas') loadReservas();
   if (section === 'stock')    loadStock();
 }
@@ -863,3 +1013,4 @@ function showToast(msg, type = '') {
 </script>
 </body>
 </html>
+
