@@ -345,7 +345,7 @@ header{background:var(--card);border-bottom:1px solid var(--border);padding:0 5%
 // CONFIG
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000/api/v1'
-  : 'https://farmafind-api.onrender.com/api/v1';
+  : `${window.location.origin}/api/v1`;
 
 let USER_LAT = -25.969;
 let USER_LNG =  32.573;

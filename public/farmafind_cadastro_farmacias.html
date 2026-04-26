@@ -504,7 +504,7 @@ body{
   export {fNome};
 const API_BASE = window.location.hostname === 'localhost' 
   ? 'http://localhost:3000/api/v1'
-  : 'https://farmafind-api.onrender.com/api/v1'; // ← actualizar após deploy
+  : `${window.location.origin}/api/v1`;
 
 let SUPABASE_URL = '';
 let SUPABASE_KEY = '';
@@ -718,7 +718,6 @@ function submitForm(){
 </script>
 </body>
 </html>
-
 
 
 
