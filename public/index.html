@@ -38,10 +38,12 @@ header{background:var(--card);border-bottom:1px solid var(--border);padding:0 5%
 .logo-mark svg{width:20px;height:20px;fill:white;}
 .logo span{color:var(--primary-mid);}
 .header-right{display:flex;align-items:center;gap:10px;}
+.header-actions{display:flex;align-items:center;gap:10px;}
 .icon-btn{position:relative;width:42px;height:42px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);}
 .icon-btn:hover{background:var(--primary-light);color:var(--primary);border-color:var(--primary-mid);}
 .icon-btn svg{width:19px;height:19px;}
 .icon-badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:white;font-size:.6rem;font-weight:700;min-width:18px;height:18px;border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;}
+.mobile-menu-btn{display:none;}
 
 /* hero */
 .hero{background:linear-gradient(140deg,var(--primary-dark) 0%,var(--primary) 55%,var(--primary-mid) 100%);padding:3.5rem 5% 5rem;text-align:center;position:relative;overflow:hidden;}
@@ -132,6 +134,13 @@ header{background:var(--card);border-bottom:1px solid var(--border);padding:0 5%
 .sidebar-body::-webkit-scrollbar{width:4px;}
 .sidebar-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .sidebar-footer{padding:1.2rem 1.4rem;border-top:1px solid var(--border);background:var(--bg);flex-shrink:0;}
+.mobile-nav-sidebar{left:-320px;right:auto;width:300px;}
+.mobile-nav-sidebar.open{left:0;}
+.mobile-nav-list{display:flex;flex-direction:column;gap:10px;}
+.mobile-nav-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);text-decoration:none;font-size:.88rem;font-weight:600;transition:var(--t);width:100%;font-family:'Sora',sans-serif;cursor:pointer;}
+.mobile-nav-link:hover{background:var(--primary-light);border-color:var(--primary-mid);color:var(--primary);}
+.mobile-nav-link svg{width:18px;height:18px;color:var(--primary);flex-shrink:0;}
+.mobile-nav-note{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--primary-light);border:1px solid rgba(0,122,94,.15);font-size:.78rem;color:var(--primary-dark);line-height:1.6;}
 
 /* cart */
 .cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text-muted);font-size:.88rem;gap:8px;}
@@ -214,8 +223,8 @@ header{background:var(--card);border-bottom:1px solid var(--border);padding:0 5%
 #toast.toast-error{background:var(--danger);}
 
 /* responsive */
-@media(max-width:900px){.user-grid{grid-template-columns:1fr;}.map-panel{position:static;}#map{height:260px;}.form-row{grid-template-columns:1fr;}}
-@media(max-width:600px){header{padding:0 4%;}.hero{padding:2.5rem 4% 4rem;}.hero h1{font-size:1.8rem;}.sidebar{width:100%;right:-100%;}}
+@media(max-width:900px){.user-grid{grid-template-columns:1fr;}.map-panel{position:static;}#map{height:260px;}.form-row{grid-template-columns:1fr;}.user-grid section,.map-panel{width:100%;}}
+@media(max-width:600px){header{padding:0 4%;gap:10px;}.logo{font-size:1.2rem;gap:8px;}.logo-mark{width:32px;height:32px;}.header-right,.header-actions{gap:8px;}.mobile-menu-btn{display:flex;}.hero{padding:2.4rem 4% 3.5rem;text-align:left;}.hero h1{font-size:1.85rem;line-height:1.1;}.hero p{font-size:.92rem;max-width:28rem;}.search-wrapper{padding:0 4%;margin-top:-22px;}.search-card{flex-direction:column;align-items:stretch;padding:.9rem;}.btn-search{width:100%;justify-content:center;}.quick-searches{padding:.95rem .3rem 0;overflow-x:auto;flex-wrap:nowrap;-ms-overflow-style:none;scrollbar-width:none;}.quick-searches::-webkit-scrollbar{display:none;}.quick-label,.quick-pill{flex:0 0 auto;}.main-content{margin:1.5rem auto;padding:0 4% 2rem;}.results-header{flex-direction:column;align-items:flex-start;gap:8px;}.card-top,.card-actions{flex-direction:column;align-items:stretch;}.card-actions .btn-secondary,.card-actions .btn-add{width:100%;justify-content:center;}.map-panel-header{flex-direction:column;align-items:flex-start;gap:8px;}#map{height:220px;}.sidebar{width:100%;right:-100%;}.mobile-nav-sidebar{width:min(88vw,320px);left:-100%;}.mobile-nav-sidebar.open{left:0;}.modal{max-height:88vh;}.modal-header,.modal-body,.modal-footer{padding-left:1rem;padding-right:1rem;}#toast{left:1rem;right:1rem;bottom:1rem;max-width:none;}}
 </style>
 </head>
 <body>
@@ -228,16 +237,36 @@ header{background:var(--card);border-bottom:1px solid var(--border);padding:0 5%
     Farma<span>Find</span>
   </a>
   <nav class="header-right">
-    <button class="icon-btn" onclick="openSidebar('ticketsSidebar')" title="As minhas reservas" aria-label="Ver Reservas">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
-      <span class="icon-badge" id="ticketBadge">0</span>
-    </button>
-    <button class="icon-btn" onclick="openSidebar('cartSidebar')" title="Carrinho" aria-label="Ver Carrinho">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
-      <span class="icon-badge" id="cartBadge">0</span>
-    </button>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="openSidebar('ticketsSidebar')" title="As minhas reservas" aria-label="Ver Reservas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        <span class="icon-badge" id="ticketBadge">0</span>
+      </button>
+      <button class="icon-btn" onclick="openSidebar('cartSidebar')" title="Carrinho" aria-label="Ver Carrinho">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        <span class="icon-badge" id="cartBadge">0</span>
+      </button>
+      <button class="icon-btn mobile-menu-btn" onclick="openSidebar('mobileNavSidebar')" title="Menu" aria-label="Abrir menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
+    </div>
   </nav>
 </header>
+
+<div class="sidebar mobile-nav-sidebar" id="mobileNavSidebar">
+  <div class="sidebar-header"><h3>Navegação</h3><button class="sidebar-close" onclick="closeSidebar('mobileNavSidebar')">✕</button></div>
+  <div class="sidebar-body">
+    <div class="mobile-nav-list">
+      <a class="mobile-nav-link" href="#heroSection" onclick="closeSidebar('mobileNavSidebar')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg><span>Dashboard</span></a>
+      <a class="mobile-nav-link" href="#searchSection" onclick="closeSidebar('mobileNavSidebar')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span>Pesquisar</span></a>
+      <a class="mobile-nav-link" href="#resultsSection" onclick="closeSidebar('mobileNavSidebar')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg><span>Resultados</span></a>
+      <a class="mobile-nav-link" href="#map" onclick="closeSidebar('mobileNavSidebar')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l-6 3V6l6-3 6 3 6-3v15l-6 3-6-3z"/><path d="M9 3v15"/><path d="M15 6v15"/></svg><span>Mapa</span></a>
+      <button class="mobile-nav-link" onclick="closeSidebar('mobileNavSidebar'); openSidebar('ticketsSidebar');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg><span>Notificações</span></button>
+      <button class="mobile-nav-link" onclick="closeSidebar('mobileNavSidebar'); openSidebar('cartSidebar');"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span>Carrinho</span></button>
+    </div>
+    <div class="mobile-nav-note">No telemóvel, use este menu para navegar rapidamente entre a área principal, resultados, mapa, notificações e carrinho.</div>
+  </div>
+</div>
 
 <div class="sidebar" id="cartSidebar">
   <div class="sidebar-header"><h3>O seu carrinho</h3><button class="sidebar-close" onclick="closeSidebar('cartSidebar')">✕</button></div>
@@ -260,12 +289,12 @@ header{background:var(--card);border-bottom:1px solid var(--border);padding:0 5%
 </div>
 
 <main>
-    <section class="hero">
+    <section class="hero" id="heroSection">
       <h1>O que precisa hoje?</h1>
       <p>Localize medicamentos, compare preços e reserve — grátis.</p>
     </section>
 
-    <div class="search-wrapper">
+    <div class="search-wrapper" id="searchSection">
       <div class="search-card" role="search">
         <div class="search-field-wrap">
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -288,7 +317,7 @@ header{background:var(--card);border-bottom:1px solid var(--border);padding:0 5%
 
     <div class="main-content">
       <div class="user-grid">
-        <section aria-labelledby="resultsTitle">
+        <section aria-labelledby="resultsTitle" id="resultsSection">
           <div class="results-header" id="resultsHeader">
             <h2 class="results-title" id="resultsTitle">Resultados</h2>
             <span class="results-count" id="resultsCount">0 farmácias</span>
@@ -370,7 +399,7 @@ let receitaFile = null;
 
 function openSidebar(id)  { closeAllSidebars(); document.getElementById(id).classList.add('open'); document.getElementById('overlay').classList.add('visible'); }
 function closeSidebar(id) { document.getElementById(id).classList.remove('open'); document.getElementById('overlay').classList.remove('visible'); }
-function closeAllSidebars() { ['cartSidebar','ticketsSidebar'].forEach(id => document.getElementById(id).classList.remove('open')); document.getElementById('overlay').classList.remove('visible'); }
+function closeAllSidebars() { ['cartSidebar','ticketsSidebar','mobileNavSidebar'].forEach(id => document.getElementById(id).classList.remove('open')); document.getElementById('overlay').classList.remove('visible'); }
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
