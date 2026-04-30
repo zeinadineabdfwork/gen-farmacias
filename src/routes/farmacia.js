@@ -37,4 +37,5 @@ farmaciaRouter.delete('/medicamentos/:id', farmaciaController.removerMedicamento
 farmaciaRouter.get('/alertas', farmaciaController.alertasStock);
  
 // ── PERFIL DA FARMÁCIA ───────────────────────────────────
+farmaciaRouter.get('/perfil', farmaciaController.obterPerfil);   // ← NOVA
 farmaciaRouter.patch('/perfil', farmaciaController.atualizarPerfil);

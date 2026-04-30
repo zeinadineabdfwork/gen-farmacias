@@ -226,6 +226,7 @@ export const farmaciaController = {
         user_id: userId,
         nome,
         slug,
+        nuit,
         email,
         telefone: tel,
         whatsapp: whatsapp || null,
@@ -233,10 +234,16 @@ export const farmaciaController = {
         morada,
         latitude: lat ? parseFloat(lat) : 0,
         longitude: lon ? parseFloat(lon) : 0,
-        horario_abertura: horarios.abertura,
-        horario_fecho: horarios.fecho,
-        dias_funcionamento: horarios.dias || ['seg', 'ter', 'qua', 'qui', 'sex'],
-        activa: servicos.activa !== false,
+        horario_abertura: horarios?.abertura || null,
+        horario_fecho: horarios?.fecho || null,
+        dias_funcionamento: horarios?.dias || ['seg', 'ter', 'qua', 'qui', 'sex'],
+        horario_especial: horarios?.especial || null,
+        urgencia24: horarios?.urgencia24 || false,
+        reservas_online: servicos?.reservas_online !== false,
+        receitas_digitais: servicos?.receitas_digitais !== false,
+        whatsapp_alertas: servicos?.whatsapp_alertas || false,
+        visivel_mapa: servicos?.visivel_mapa !== false,
+        activa: servicos?.activa !== false,
         notas: notas || null,
         logo_url,
       };
@@ -268,6 +275,43 @@ export const farmaciaController = {
           refresh_token: sessionData.session.refresh_token,
         },
       });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  // GET /api/v1/farmacia/perfil
+  async obterPerfil(req, res, next) {
+    try {
+      const fid = req.farmacia_id;
+      if (!fid) throw new AppError('ID da farmácia não encontrado na sessão.', 401);
+
+      const { data, error } = await supabaseAdmin
+        .from('farmacias')
+        .select(`
+          id, nome, slug, nuit, email, telefone, whatsapp,
+          cidade, morada, latitude, longitude,
+          horario_abertura, horario_fecho, dias_funcionamento,
+          horario_especial, urgencia24,
+          reservas_online, receitas_digitais, whatsapp_alertas, visivel_mapa,
+          activa, notas, logo_url,
+          criada_em, atualizada_em
+        `)
+        .eq('id', fid)
+        .maybeSingle(); // ← maybeSingle em vez de single — não lança erro se 0 rows
+
+      if (error) {
+        // Serializar o erro do Supabase correctamente
+        const msg = error?.message || error?.details || JSON.stringify(error);
+        console.error('Supabase erro obterPerfil:', msg, '| code:', error?.code);
+        throw new AppError(`Erro ao carregar perfil: ${msg}`, 500);
+      }
+
+      if (!data) {
+        throw new AppError('Farmácia não encontrada.', 404);
+      }
+
+      res.json({ success: true, farmacia: data });
     } catch (err) {
       next(err);
     }
@@ -328,26 +372,30 @@ export const farmaciaController = {
     }
   },
 
-  // PATCH /api/v1/farmacia/perfil
+  // PATCH /api/v1/farmacia/perfil — só permite alterar o telefone no portal
   async atualizarPerfil(req, res, next) {
     try {
-      const ALLOWED_FIELDS = ['telefone', 'whatsapp', 'email', 'horario_abertura', 'horario_fecho', 'dias_funcionamento'];
+      const ALLOWED_FIELDS = ['telefone'];
       const updates = Object.fromEntries(
         Object.entries(req.body).filter(([key]) => ALLOWED_FIELDS.includes(key))
       );
 
       if (!Object.keys(updates).length) {
-        throw new AppError('Nenhum campo válido para atualização foi fornecido.', 400);
+        throw new AppError('Apenas o campo "telefone" pode ser alterado neste portal.', 400);
       }
 
       const { data, error } = await supabaseAdmin
         .from('farmacias')
         .update(updates)
         .eq('id', req.farmacia_id)
-        .select()
+        .select('id, telefone')
         .single();
 
-      if (error) throw new AppError('Erro ao atualizar perfil na base de dados.', 500);
+      if (error) {
+        const msg = error?.message || JSON.stringify(error);
+        throw new AppError(`Erro ao actualizar perfil: ${msg}`, 500);
+      }
+
       res.json({ success: true, farmacia: data });
     } catch (err) {
       next(err);

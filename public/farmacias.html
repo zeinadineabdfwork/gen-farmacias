@@ -2,14 +2,12 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#004D3B">
-<title>FarmaFind â€” Portal da FarmÃ¡cia</title>
+<title>Makinino - Portal da farmaciacia</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Supabase JS para autenticaÃ§Ã£o -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-
 <style>
 :root {
   --primary:#007A5E; --primary-light:#E8F5F1; --primary-mid:#3DAB89; --primary-dark:#004D3B;
@@ -33,7 +31,6 @@ line-height:1.55;
 -webkit-font-smoothing:antialiased;
 }
 
-/* â”€â”€ LOGIN SCREEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #loginScreen{
   min-height:100vh;
   display:flex;
@@ -101,19 +98,19 @@ line-height:1.55;
   border:1.5px solid var(--border);
   border-radius:var(--radius-sm);
   font-family:'Sora',sans-serif;
-  font-size:.92rem;
+  font-size:.94rem;
   color:var(--text);
   background:var(--bg);
   outline:none;
   transition:var(--t);
+  
 }
-.login-input:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px rgba(0,122,94,.1);}
+.login-input:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px rgba(0,122,94,1);}
 .btn-login{width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:var(--t);margin-top:.5rem;}
 .btn-login:hover{background:var(--primary-dark);}
 .btn-login:disabled{opacity:.6;cursor:not-allowed;}
 .login-error{background:var(--danger-light);border:1px solid var(--danger);border-radius:var(--radius-sm);padding:10px 14px;font-size:.82rem;color:var(--danger);margin-bottom:1rem;display:none;}
 
-/* â”€â”€ ADMIN LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #adminApp{display:none;min-height:100vh;}
 .admin-grid{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
 .admin-sidebar{background:var(--primary-dark);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto;}
@@ -269,7 +266,45 @@ line-height:1.55;
 .receita-url-link{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:var(--primary);color:white;border-radius:8px;font-weight:700;font-size:.85rem;text-decoration:none;margin-top:1rem;transition:var(--t);}
 .receita-url-link:hover{background:var(--primary-dark);}
 
-/* skeleton / loading */
+/* ============================================================
+   FARMACIA PROFILE SECTION
+   ============================================================ */
+.profile-header-card{background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 100%);border-radius:var(--radius);padding:1.75rem;color:white;margin-bottom:1.25rem;position:relative;overflow:hidden;}
+.profile-header-card::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(255,255,255,.06);border-radius:50%;}
+.profile-farmacia-name{font-family:'DM Serif Display',serif;font-size:1.6rem;margin-bottom:.25rem;}
+.profile-farmacia-id{font-size:.75rem;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase;}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;}
+@media(max-width:600px){.profile-grid{grid-template-columns:1fr;}}
+.profile-info-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;}
+.profile-info-card-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:6px;}
+.profile-info-card-title svg{width:14px;height:14px;}
+.profile-field{margin-bottom:.85rem;}
+.profile-field:last-child{margin-bottom:0;}
+.profile-field-label{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+.profile-field-value{font-size:.9rem;color:var(--text);font-weight:500;}
+.profile-field-editable{display:flex;align-items:center;gap:8px;}
+.profile-tel-input{flex:1;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.9rem;color:var(--text);background:var(--bg);outline:none;transition:var(--t);}
+.profile-tel-input:focus{border-color:var(--primary);background:var(--card);box-shadow:0 0 0 3px rgba(0,122,94,.08);}
+.profile-tel-input:disabled{background:var(--bg);color:var(--text-muted);cursor:default;}
+.btn-edit-tel{padding:9px 14px;background:var(--primary-light);color:var(--primary);border:1.5px solid var(--primary-mid);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:var(--t);white-space:nowrap;}
+.btn-edit-tel:hover{background:var(--primary);color:white;}
+.btn-save-tel{padding:9px 14px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:var(--t);white-space:nowrap;}
+.btn-save-tel:hover{background:var(--primary-dark);}
+.btn-save-tel:disabled{opacity:.5;cursor:not-allowed;}
+.profile-tel-feedback{font-size:.75rem;margin-top:5px;display:none;}
+.profile-status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;font-size:.75rem;font-weight:700;}
+.profile-badge-ativo{background:var(--success-light);color:var(--success);}
+.profile-badge-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+.profile-full-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;}
+.profile-full-card-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:6px;}
+.profile-full-card-title svg{width:14px;height:14px;}
+.profile-map-link{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--primary);font-weight:600;text-decoration:none;transition:var(--t);}
+.profile-map-link:hover{color:var(--primary-dark);}
+.profile-horario-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.65rem;margin-top:.5rem;}
+.profile-horario-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.65rem .9rem;}
+.profile-horario-dia{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);}
+.profile-horario-hora{font-size:.82rem;font-weight:600;color:var(--text);margin-top:.2rem;}
+.profile-horario-fechado{color:var(--danger);font-weight:700;}
 .skeleton{background:linear-gradient(90deg,var(--bg) 25%,#edf2f7 50%,var(--bg) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:6px;}
 @keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
 
@@ -284,36 +319,79 @@ line-height:1.55;
 .admin-section{display:none;}
 .admin-section.active{display:block;}
 
-@media(max-width:900px){.admin-grid{grid-template-columns:1fr;}.admin-sidebar{display:none;}.stats-grid{grid-template-columns:1fr 1fr;}.admin-panels{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}}
+/* ============================================================
+   MOBILE RESPONSIVE
+   ============================================================ */
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:.85rem 1rem;background:var(--primary-dark);position:sticky;top:0;z-index:200;}
+.mobile-topbar-logo{font-family:'DM Serif Display',serif;font-size:1.1rem;color:rgba(255,255,255,.9);}
+.mobile-topbar-logo span{color:var(--primary-mid);}
+.mobile-topbar-right{display:flex;align-items:center;gap:8px;}
+.btn-hamburger{width:38px;height:38px;border-radius:9px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--t);}
+.btn-hamburger:hover{background:rgba(255,255,255,.2);}
+.btn-hamburger svg{width:20px;height:20px;stroke:white;}
+.mobile-notif-dot{width:8px;height:8px;border-radius:50%;background:var(--danger);position:absolute;top:6px;right:6px;display:none;}
+.btn-hamburger{position:relative;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(13,27,42,.6);z-index:299;backdrop-filter:blur(2px);}
+.sidebar-overlay.open{display:block;}
+
+@media(max-width:768px){
+  .mobile-topbar{display:flex;}
+  .admin-grid{display:block;}
+  .admin-sidebar{
+    position:fixed;left:-260px;top:0;width:250px;height:100vh;z-index:300;
+    transition:left .3s cubic-bezier(.4,0,.2,1);
+    box-shadow:var(--shadow-lg);
+  }
+  .admin-sidebar.open{left:0;}
+  .admin-main{padding:1rem;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .admin-panels{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .dashboard-highlight{grid-template-columns:1fr;}
+  .insight-grid{grid-template-columns:1fr;}
+  .hero-grid{grid-template-columns:1fr 1fr;}
+  .admin-page-title{font-size:1.4rem;}
+  .data-table th,.data-table td{padding:8px 10px;font-size:.75rem;}
+  #toast{bottom:1rem;right:.75rem;left:.75rem;max-width:none;}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr;}
+  .hero-grid{grid-template-columns:1fr;}
+  .login-card{padding:1.75rem 1.25rem;}
+  .modal{border-radius:16px 16px 0 0;position:fixed;bottom:0;left:0;right:0;max-width:100%;max-height:85vh;}
+  .modal-overlay{align-items:flex-end;padding:0;}
+}
+@media(min-width:769px){
+  .admin-sidebar{position:sticky;top:0;height:100vh;left:0!important;}
+  .admin-grid{display:grid;grid-template-columns:220px 1fr;}
+}
 </style>
 </head>
 <body>
 
-<!-- â”€â”€ LOGIN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
       <div class="login-logo-mark"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></div>
-      <div class="login-logo-name">Farma<span>Find</span></div>
+      <div class="login-logo-name">Makinino<span>Find</span></div>
     </div>
-    <p class="login-sub">Portal da FarmÃ¡cia â€” Acesso Restrito</p>
+    <p class="login-sub">Portal da Farmacia. Acesso Restrito</p>
     <div id="loginError" class="login-error"></div>
-    <div class="login-field"><label class="login-label">Email</label><input type="email" id="loginEmail" class="login-input" placeholder="admin@suafarmacia.co.mz" autocomplete="email"/></div>
-    <div class="login-field"><label class="login-label">Palavra-passe</label><input type="password" id="loginPass" class="login-input" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password"/></div>
+    <div class="login-field"><label class="login-label">Email</label><input type="email" id="loginEmail" class="login-input" placeholder="admin@suaMakininocia.co.mz" autocomplete="email"/></div>
+    <div class="login-field"><label class="login-label">Palavra-passe</label><input type="password" id="loginPass" class="login-input" placeholder="  " autocomplete="current-password"/></div>
     <button class="btn-login" id="btnLogin" onclick="doLogin()">Entrar no Portal</button>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;">
-      <a class="btn-recover" href="farmafind_cadastro_farmacias.html" style="margin:0;width:auto;padding:0;font-size:.8rem;">Criar Conta</a>
+      <a class="btn-recover" href="Makininfind_cadastro_Makinincias.html" style="margin:0;width:auto;padding:0;font-size:.8rem;">Criar Conta</a>
       <button onclick="openForgotModal()" style="background:none;border:none;cursor:pointer;font-size:.8rem;color:var(--primary);font-family:'Sora',sans-serif;font-weight:600;text-decoration:underline;">Esqueceu a palavra-passe?</button>
     </div>
   </div>
 </div>
 
-<!-- â”€â”€ MODAL RECUPERAÃ‡ÃƒO DE PALAVRA-PASSE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div class="modal-overlay" id="forgotModal">
   <div class="modal" role="dialog" aria-labelledby="forgotTitle" style="max-width:420px;">
     <div class="modal-header">
       <h2 id="forgotTitle" style="font-size:.95rem;">Recuperar palavra-passe</h2>
-      <button class="modal-close" onclick="closeForgotModal()">âœ•</button>
+      <button class="modal-close" onclick="closeForgotModal()">✖</button>
     </div>
     <div class="modal-body">
       <p style="font-size:.83rem;color:var(--text-muted);margin-bottom:1.2rem;line-height:1.6;">Introduza o seu email de administrador. Enviaremos um link para redefinir a sua palavra-passe.</p>
@@ -335,23 +413,39 @@ line-height:1.55;
   </div>
 </div>
 
-<!-- â”€â”€ ADMIN APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div id="adminApp">
+  <!-- Mobile Top Bar -->
+  <div class="mobile-topbar" id="mobileTopbar" style="display:none">
+    <div class="mobile-topbar-logo">Makinino<span>Find</span></div>
+    <div class="mobile-topbar-right">
+      <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span class="mobile-notif-dot" id="mobileNotifDot"></span>
+      </button>
+    </div>
+  </div>
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
   <div class="admin-grid">
     <!-- Sidebar -->
-    <div class="admin-sidebar">
-      <div class="admin-logo">Farma<span>Find</span></div>
+    <div class="admin-sidebar" id="adminSidebar">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding:0 8px;">
+        <div class="admin-logo" style="margin-bottom:0">Makinino<span>Find</span></div>
+        <button id="btnCloseSidebar" onclick="closeSidebar()" style="display:none;width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);cursor:pointer;color:white;font-size:.9rem;align-items:center;justify-content:center;">✕</button>
+      </div>
       <div class="admin-profile">
-        <div class="admin-avatar" id="sideAvatar">FF</div>
-        <div><div class="admin-name" id="sideName">Carregando...</div><div class="admin-role" id="sideRole">Portal da FarmÃ¡cia</div></div>
+        <div class="admin-avatar" id="sideAvatar">MF</div>
+        <div><div class="admin-name" id="sideName">Carregando...</div><div class="admin-role" id="sideRole">Portal da Farmacia</div></div>
       </div>
       <button class="admin-nav-item active" onclick="adminNav('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
-      <button class="admin-nav-item" onclick="adminNav('stock',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>GestÃ£o de Stock</button>
+      <button class="admin-nav-item" onclick="adminNav('stock',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Gestão de Stock</button>
       <button class="admin-nav-item" onclick="adminNav('reservas',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>Reservas</button>
       <div class="admin-nav-divider"></div>
-      <button class="admin-nav-item" id="notifNavBtn" onclick="adminNav('notificacoes',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>NotificaÃ§Ãµes<span class="nav-alert-light" id="notifLiveLight"></span><span class="notif-count" id="adminNotifCount" style="display:none">0</span></button>
+      <button class="admin-nav-item" onclick="adminNav('notificacoes',this)" id="notifNavBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notificação<span class="nav-alert-light" id="notifLiveLight"></span><span class="notif-count" id="adminNotifCount" style="display:none">0</span></button>
       <div class="admin-nav-divider"></div>
-      <button class="btn-logout" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Terminar sessÃ£o</button>
+      <button class="admin-nav-item" onclick="adminNav('farmacia',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Minha Farmácia</button>
+      <div class="admin-nav-divider"></div>
+      <button class="btn-logout" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Terminar sessão</button>
     </div>
 
     <!-- Main -->
@@ -386,13 +480,13 @@ line-height:1.55;
             <div class="panel-header"><span class="panel-title">Reservas recentes da semana</span></div>
             <div class="panel-body weekly-table-wrap">
               <table class="data-table">
-                <thead><tr><th>CÃ³digo</th><th>Utente</th><th>Itens</th><th>Estado</th><th>Total</th><th>Data</th></tr></thead>
+                <thead><tr><th>Codigo</th><th>Utente</th><th>Itens</th><th>Estado</th><th>Total</th><th>Data</th></tr></thead>
                 <tbody id="weekReservationsBody"></tbody>
               </table>
             </div>
           </div>
           <div class="panel">
-            <div class="panel-header"><span class="panel-title">Pulso do negÃ³cio</span></div>
+            <div class="panel-header"><span class="panel-title">Pulso do negocio</span></div>
             <div class="panel-body"><div id="businessInsights" class="compact-list"></div></div>
           </div>
         </div>
@@ -400,29 +494,137 @@ line-height:1.55;
 
       <!-- STOCK -->
       <div class="admin-section" id="section-stock">
-        <div class="admin-page-title">GestÃ£o de Stock</div>
-        <div class="admin-page-sub">Adicione e actualize medicamentos. MÃ­nimo obrigatÃ³rio: 100 cartelas.</div>
+        <div class="admin-page-title">Gestão de Stock</div>
+        <div class="admin-page-sub">Adicione e actualize medicamentos. Mi­nimo obrigatório: 100 cartelas.</div>
         <div class="panel" style="margin-bottom:1rem">
           <div class="panel-header"><span class="panel-title">Medicamentos em Stock</span><button class="btn-add-green" onclick="openStockModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button></div>
-          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Medicamento</th><th>Categoria</th><th>Cartelas</th><th>NÃ­vel</th><th>PreÃ§o (MT)</th><th>AcÃ§Ãµes</th></tr></thead><tbody id="stockTableBody"></tbody></table></div>
+          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Medicamento</th><th>Categoria</th><th>Cartelas</th><th>Ní­vel</th><th>Preço (MT)</th><th>Acções</th></tr></thead><tbody id="stockTableBody"></tbody></table></div>
         </div>
       </div>
 
       <!-- RESERVAS -->
       <div class="admin-section" id="section-reservas">
         <div class="admin-page-title">Reservas</div>
-        <div class="admin-page-sub">Gerencie reservas dos utentes. ApÃ³s pagamento presencial, marque como pago.</div>
+        <div class="admin-page-sub">Gerencie reservas dos utentes. Após pagamento presencial, marque como pago.</div>
         <div class="panel">
-          <div class="panel-header"><span class="panel-title">Lista de Reservas</span><span class="results-count" id="reservasCount">â€”</span></div>
-          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>CÃ³digo</th><th>Utente</th><th>Medicamentos</th><th>Data</th><th>Total</th><th>Estado</th><th>Receita</th><th>AcÃ§Ã£o</th></tr></thead><tbody id="reservasTableBody"></tbody></table></div>
+          <div class="panel-header"><span class="panel-title">Lista de Reservas</span><span class="results-count" id="reservasCount">—</span></div>
+          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Código</th><th>Utente</th><th>Medicamentos</th><th>Data</th><th>Total</th><th>Estado</th><th>Receita</th><th>Acção</th></tr></thead><tbody id="reservasTableBody"></tbody></table></div>
         </div>
       </div>
 
-      <!-- NOTIFICAÃ‡Ã•ES -->
+      <!-- NOTIFICAÇÕES -->
       <div class="admin-section" id="section-notificacoes">
-        <div class="admin-page-title">NotificaÃ§Ãµes</div>
-        <div class="admin-page-sub">Alertas automÃ¡ticos de stock crÃ­tico â€” emitidos quando desce abaixo de 100 cartelas.</div>
+        <div class="admin-page-title">Notificações</div>
+        <div class="admin-page-sub">Alertas automáticos de stock crí­tico — emitidos quando desce abaixo de 100 cartelas.</div>
         <div class="panel"><div class="panel-header"><span class="panel-title">Alertas recentes</span></div><div id="notifList" style="padding:.5rem 0"></div></div>
+      </div>
+
+      <!-- FARMÁCIA -->
+      <div class="admin-section" id="section-farmacia">
+        <div class="admin-page-title">Minha Farmácia</div>
+        <div class="admin-page-sub">Dados do seu estabelecimento registado na plataforma. Só o número de telefone pode ser alterado.</div>
+
+        <!-- Header Card -->
+        <div class="profile-header-card">
+          <div class="profile-farmacia-name" id="pfNome">A carregar...</div>
+          <div style="display:flex;align-items:center;gap:.75rem;margin-top:.5rem;flex-wrap:wrap;">
+            <span class="profile-farmacia-id" id="pfId">ID: —</span>
+            <span class="profile-status-badge profile-badge-ativo" id="pfStatus"><span class="profile-badge-dot"></span>Ativo</span>
+          </div>
+        </div>
+
+        <!-- Grid de info -->
+        <div class="profile-grid">
+          <!-- Contactos -->
+          <div class="profile-info-card">
+            <div class="profile-info-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 6.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+              Contactos
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">Email</div>
+              <div class="profile-field-value" id="pfEmail">—</div>
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">Número de Telefone</div>
+              <div class="profile-field-editable">
+                <input type="tel" class="profile-tel-input" id="pfTelInput" disabled placeholder="+258 8X XXX XXXX"/>
+                <button class="btn-edit-tel" id="btnEditTel" onclick="startEditTel()">Editar</button>
+              </div>
+              <div class="profile-tel-feedback" id="pfTelFeedback"></div>
+            </div>
+          </div>
+
+          <!-- Localização -->
+          <div class="profile-info-card">
+            <div class="profile-info-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Localização
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">Cidade</div>
+              <div class="profile-field-value" id="pfCidade">—</div>
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">Bairro / Endereço</div>
+              <div class="profile-field-value" id="pfBairro">—</div>
+            </div>
+            <div class="profile-field" id="pfGeoField" style="display:none">
+              <div class="profile-field-label">Coordenadas</div>
+              <a class="profile-map-link" id="pfMapLink" href="#" target="_blank">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                Ver no Mapa
+              </a>
+            </div>
+          </div>
+
+          <!-- Registo -->
+          <div class="profile-info-card">
+            <div class="profile-info-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Datas de Registo
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">Registado em</div>
+              <div class="profile-field-value" id="pfCriadaEm">—</div>
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">Última actualização</div>
+              <div class="profile-field-value" id="pfUpdatedAt">—</div>
+            </div>
+          </div>
+
+          <!-- Tipo e Licença -->
+          <div class="profile-info-card">
+            <div class="profile-info-card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              Licença e Tipo
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">Tipo</div>
+              <div class="profile-field-value" id="pfTipo">—</div>
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">Licença / Alvará</div>
+              <div class="profile-field-value" id="pfLicenca">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Horários (se existirem) -->
+        <div class="profile-full-card" id="pfHorarioCard" style="display:none">
+          <div class="profile-full-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Horário de Funcionamento
+          </div>
+          <div class="profile-horario-grid" id="pfHorarioGrid"></div>
+        </div>
+
+        <!-- Aviso readonly -->
+        <div style="background:var(--primary-light);border:1.5px solid var(--primary-mid);border-radius:var(--radius-sm);padding:12px 16px;font-size:.8rem;color:var(--primary-dark);display:flex;align-items:flex-start;gap:8px;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>Os dados da farmácia são carregados directamente da base de dados. Apenas o <strong>número de telefone</strong> pode ser editado neste portal. Para alterar outros dados, contacte o suporte Makinino.</span>
+        </div>
       </div>
 
     </div><!-- /admin-main -->
@@ -432,20 +634,20 @@ line-height:1.55;
 <!-- STOCK MODAL -->
 <div class="modal-overlay" id="stockModal">
   <div class="modal">
-    <div class="modal-header"><h2 id="stockModalTitle">Adicionar Medicamento</h2><button class="modal-close" onclick="closeModal('stockModal')">âœ•</button></div>
+    <div class="modal-header"><h2 id="stockModalTitle">Adicionar Medicamento</h2><button class="modal-close" onclick="closeModal('stockModal')">✖</button></div>
     <div class="modal-body">
       <div class="form-group"><label class="form-label">Nome do medicamento *</label><input type="text" id="fNome" class="form-control" placeholder="Ex: Amoxicilina 500mg"/></div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Categoria *</label><select id="fCat" class="form-control"><option>AntibiÃ³ticos</option><option>AnalgÃ©sicos</option><option>Anti-inflamatÃ³rios</option><option>AntidiabÃ©ticos</option><option>AntiparasitÃ¡rios</option><option>AntimalÃ¡ricos</option><option>Cardiovascular</option><option>Gastrointestinal</option><option>Vitaminas/Suplementos</option><option>Outro</option></select></div>
+        <div class="form-group"><label class="form-label">Categoria *</label><select id="fCat" class="form-control"><option>Antibióticos</option><option>Analgésicos</option><option>Anti-inflamatórios</option><option>Antidiabéticos</option><option>Antiparasitários</option><option>Antimaláricos</option><option>Cardiovascular</option><option>Gastrointestinal</option><option>Vitaminas/Suplementos</option><option>Outro</option></select></div>
         <div class="form-group"><label class="form-label">Dosagem</label><input type="text" id="fDosagem" class="form-control" placeholder="Ex: 500mg"/></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Cartelas em stock *</label><input type="number" id="fStock" class="form-control" min="0" placeholder="Ex: 300"/><div class="form-hint">MÃ­nimo recomendado: 100</div></div>
-        <div class="form-group"><label class="form-label">PreÃ§o por cartela (MT) *</label><input type="number" id="fPreco" class="form-control" min="0" placeholder="Ex: 150"/></div>
+        <div class="form-group"><label class="form-label">Cartelas em stock *</label><input type="number" id="fStock" class="form-control" min="0" placeholder="Ex: 300"/><div class="form-hint">Mínimo recomendado: 100</div></div>
+        <div class="form-group"><label class="form-label">Preço por cartela (MT) *</label><input type="number" id="fPreco" class="form-control" min="0" placeholder="Ex: 150"/></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Alerta mÃ­nimo (cartelas)</label><input type="number" id="fMinimo" class="form-control" value="100" min="100"/><div class="form-hint">NotificaÃ§Ã£o abaixo deste valor</div></div>
-        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px"><label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="fReceita" style="width:16px;height:16px;accent-color:var(--primary)"/> Requer receita mÃ©dica</label></div>
+        <div class="form-group"><label class="form-label">Alerta mí­nimo (cartelas)</label><input type="number" id="fMinimo" class="form-control" value="100" min="100"/><div class="form-hint">Notificação abaixo deste valor</div></div>
+        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px"><label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="fReceita" style="width:16px;height:16px;accent-color:var(--primary)"/> Requer receita médica</label></div>
       </div>
       <div id="stockModalError" style="display:none;background:var(--danger-light);border:1px solid var(--danger);border-radius:8px;padding:9px 13px;font-size:.8rem;color:var(--danger);margin-top:.5rem"></div>
     </div>
@@ -456,7 +658,7 @@ line-height:1.55;
 <!-- RECEITA MODAL -->
 <div class="modal-overlay" id="receitaModal">
   <div class="modal" style="max-width:460px">
-    <div class="modal-header"><h2>Receita MÃ©dica</h2><button class="modal-close" onclick="closeModal('receitaModal')">âœ•</button></div>
+    <div class="modal-header"><h2>Receita Médica</h2><button class="modal-close" onclick="closeModal('receitaModal')">✖</button></div>
     <div class="modal-body">
       <div id="receitaContent" class="receita-viewer"><p style="color:var(--text-muted);font-size:.85rem">A carregar receita...</p></div>
     </div>
@@ -477,7 +679,7 @@ let supabaseClientReady = null;
 async function loadSupabaseConfig() {
   if (supabaseClient) return supabaseClient;
   const res = await fetch('/config');
-  if (!res.ok) throw new Error('NÃ£o foi possÃ­vel carregar a configuraÃ§Ã£o do Supabase.');
+  if (!res.ok) throw new Error('Não foi possível carregar a configuração do Supabase.');
   const cfg = await res.json();
   SUPABASE_URL = cfg.supabaseUrl;
   SUPABASE_KEY = cfg.supabaseAnonKey;
@@ -501,7 +703,7 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
 let currentUser   = null;
 let currentToken  = null;
 let weekChart     = null;
-let editingMedId  = null; // null = criar, string = editar
+let editingMedId  = null;
 let realtimeChannel = null;
 let currentFarmaciaId = null;
 let reservationAlertCount = 0;
@@ -516,6 +718,7 @@ function updateReservationAlertUI() {
   const navBtn = document.getElementById('notifNavBtn');
   const liveLight = document.getElementById('notifLiveLight');
   const badge = document.getElementById('adminNotifCount');
+  const mobileDot = document.getElementById('mobileNotifDot');
   const stockAlerts = latestDashboard ? Number(latestDashboard.stock_critico || 0) : 0;
   const total = stockAlerts + reservationAlertCount;
 
@@ -523,6 +726,7 @@ function updateReservationAlertUI() {
   badge.style.display = total ? 'inline-block' : 'none';
   navBtn.classList.toggle('has-live-alert', reservationAlertCount > 0);
   liveLight.classList.toggle('is-on', reservationAlertCount > 0);
+  if (mobileDot) mobileDot.style.display = total ? 'block' : 'none';
 }
 
 // ============================================================
@@ -542,7 +746,7 @@ async function doLogin() {
   btn.disabled = true; btn.textContent = 'A entrar...';
   try {
     await supabaseClientReady;
-    if (!supabaseClient) throw new Error('Supabase nÃ£o foi inicializado.');
+    if (!supabaseClient) throw new Error('Supabase não foi inicializado.');
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
     if (error) throw error;
     currentUser  = data.user;
@@ -568,7 +772,7 @@ async function doLogout() {
   document.getElementById('adminApp').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   updateReservationAlertUI();
-  showToast('SessÃ£o terminada.');
+  showToast('Sessão terminada.');
 }
 
 function showLoginError(msg) {
@@ -577,7 +781,7 @@ function showLoginError(msg) {
 }
 
 // ============================================================
-//  RECUPERAÃ‡ÃƒO DE PALAVRA-PASSE
+//  RECUPERAR PALAVRA-PASSE
 // ============================================================
 function openForgotModal() {
   document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value || '';
@@ -600,7 +804,7 @@ async function sendPasswordReset() {
   sucEl.style.display = 'none';
 
   if (!email || !email.includes('@')) {
-    errEl.textContent = 'Introduza um email vÃ¡lido.';
+    errEl.textContent = 'Introduza um email válido.';
     errEl.style.display = 'block';
     return;
   }
@@ -610,9 +814,9 @@ async function sendPasswordReset() {
 
   try {
     await supabaseClientReady;
-    if (!supabaseClient) throw new Error('Supabase nÃ£o inicializado. Tente recarregar a pÃ¡gina.');
+    if (!supabaseClient) throw new Error('Supabase não inicializado. Tente recarregar a página.');
 
-    // Determinar URL de redireccionamento correcto (produÃ§Ã£o ou local)
+    // Determinar URL de redireccionamento correcto (produ°§°£o ou local)
     const redirectTo = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? `http://localhost:3000/reset-password.html`
       : `${window.location.origin}/reset-password.html`;
@@ -623,12 +827,12 @@ async function sendPasswordReset() {
 
     if (error) throw error;
 
-    // Mostrar sucesso e esconder formulÃ¡rio
+    // Mostrar sucesso e esconder formulário
     sucEl.style.display = 'block';
     document.getElementById('forgotForm').style.display = 'none';
     btn.style.display = 'none';
   } catch (err) {
-    errEl.textContent = err.message || 'Erro ao enviar email. Verifique o endereÃ§o.';
+    errEl.textContent = err.message || 'Erro ao enviar email. Verifique o endereço.';
     errEl.style.display = 'block';
   } finally {
     btn.disabled = false;
@@ -636,11 +840,11 @@ async function sendPasswordReset() {
   }
 }
 
-// Verificar sessÃ£o existente ao carregar
+
 window.addEventListener('load', async () => {
   await supabaseClientReady;
   if (!supabaseClient) {
-    console.error('Supabase nÃ£o foi inicializado.');
+    console.error('Supabase não foi inicializado.');
     return;
   }
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -652,17 +856,18 @@ window.addEventListener('load', async () => {
 });
 
 // ============================================================
-//  INIT ADMIN (pÃ³s-login)
+
 // ============================================================
 async function initAdmin() {
   try {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminApp').style.display = 'block';
+    initMobileUI();
     // Preencher perfil sidebar
     const email = currentUser.email || '';
     document.getElementById('sideAvatar').textContent = email.substring(0,2).toUpperCase();
-    document.getElementById('sideName').textContent   = email;
-    document.getElementById('dashSub').textContent    = `Bem-vindo, ${email} â€” ${new Date().toLocaleDateString('pt-MZ', {weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
+    document.getElementById('sideName').textContent   = email.split('@')[0] || 'Administrador';
+    document.getElementById('dashSub').textContent    = `Bem-vindo, ${email} — ${new Date().toLocaleDateString('pt-MZ', {weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
     // Carregar dados
     await Promise.all([loadDashboard(), loadStock(), loadReservas()]);
     subscribeToReservas();
@@ -687,10 +892,10 @@ async function apiCall(path, options = {}) {
 }
 
 // ============================================================
-//  REALTIME â€” Supabase Realtime para novas reservas
+//  REALTIME — Supabase Realtime para novas reservas
 // ============================================================
 function subscribeToReservas() {
-  if (!supabaseClient) return; // Aguardar inicializaÃ§Ã£o
+  if (!supabaseClient) return; // Aguardar inicializa°§°£o
   realtimeChannel = supabaseClient
     .channel('reservas-changes')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reservas' }, payload => {
@@ -728,11 +933,11 @@ async function loadDashboard() {
     // Alertas
     const alertsEl = document.getElementById('dashAlerts');
     if (!d.alertas || !d.alertas.length) {
-      alertsEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text" style="color:var(--success)">Sem alertas crÃ­ticos.</div></div>`;
+      alertsEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text" style="color:var(--success)">Sem alertas críticos.</div></div>`;
     } else {
-      alertsEl.innerHTML = d.alertas.map(a => `<div class="notif-item"><div class="notif-dot ${a.stock_nivel==='critico'?'dot-danger':'dot-warning'}"></div><div><div class="notif-text"><strong>${a.nome}</strong> ${a.dosagem||''} â€” ${a.stock_atual}/${a.stock_minimo} cartelas</div><div class="notif-time">Reabastecimento necessÃ¡rio</div></div></div>`).join('');
+      alertsEl.innerHTML = d.alertas.map(a => `<div class="notif-item"><div class="notif-dot ${a.stock_nivel==='critico'?'dot-danger':'dot-warning'}"></div><div><div class="notif-text"><strong>${a.nome}</strong> ${a.dosagem||''} — ${a.stock_atual}/${a.stock_minimo} cartelas</div><div class="notif-time">Reabastecimento necessário</div></div></div>`).join('');
     }
-    // Badge notificaÃ§Ãµes
+    // Badge notifica°§°µes
     updateReservationAlertUI();
     renderWeekChart(d.week_series || []);
   } catch (err) { showToast('Erro ao carregar dashboard: ' + err.message, 'error'); }
@@ -829,7 +1034,7 @@ function renderStockTable(meds) {
     return `<tr>
       <td><strong>${m.nome}</strong>${m.dosagem ? ` <span style="font-size:.72rem;color:var(--text-muted)">${m.dosagem}</span>` : ''}</td>
       <td><span class="status-badge" style="background:var(--primary-light);color:var(--primary)">${m.categoria}</span></td>
-      <td>${m.stock_atual} <small style="color:var(--text-muted)">/ mÃ­n ${m.stock_minimo}</small></td>
+      <td>${m.stock_atual} <small style="color:var(--text-muted)">/ mín ${m.stock_minimo}</small></td>
       <td><div class="mini-bar-wrap"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${pct.toFixed(0)}%;background:${color}"></div></div><span style="font-size:.7rem;color:var(--text-muted);min-width:28px">${pct.toFixed(0)}%</span></div></td>
       <td>${Number(m.preco_mt).toLocaleString()} MT</td>
       <td style="display:flex;gap:6px">
@@ -844,7 +1049,7 @@ function openStockModal() {
   editingMedId = null;
   document.getElementById('stockModalTitle').textContent = 'Adicionar Medicamento';
   document.getElementById('fNome').value = ''; document.getElementById('fNome').disabled = false;
-  document.getElementById('fCat').value = 'AntibiÃ³ticos';
+  document.getElementById('fCat').value = 'Antibióticos';
   document.getElementById('fDosagem').value = ''; document.getElementById('fStock').value = '';
   document.getElementById('fPreco').value = ''; document.getElementById('fMinimo').value = '100';
   document.getElementById('fReceita').checked = false;
@@ -876,8 +1081,12 @@ async function saveStock() {
     requer_receita: document.getElementById('fReceita').checked,
   };
   if (!payload.nome) { showStockError('Insira o nome do medicamento.'); return; }
-  if (isNaN(payload.stock_atual) || isNaN(payload.preco_mt)) { showStockError('Preencha quantidade e preÃ§o.'); return; }
-  if (payload.stock_minimo < 100) { showStockError('O mÃ­nimo nÃ£o pode ser inferior a 100 cartelas.'); return; }
+  if (isNaN(payload.stock_atual) || isNaN(payload.preco_mt)) { showStockError('Preencha quantidade e preço.'); return; }
+  if (payload.stock_minimo < 100)
+   { 
+    showStockError('O mínimoão pode ser inferior a 100 cartelas.');
+   return;
+   }
   const btn = document.getElementById('btnSaveStock');
   btn.disabled = true; btn.textContent = 'A guardar...';
   try {
@@ -924,7 +1133,7 @@ function renderReservasTable(reservas) {
   if (!reservas.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem">Nenhuma reserva ainda.</td></tr>`; return; }
   tbody.innerHTML = reservas.map(r => {
     const items   = Array.isArray(r.itens) ? r.itens : [];
-    const itemStr = items.map(i => `${i.qty}Ã— ${i.nome}`).join(', ');
+    const itemStr = items.map(i => `${i.qty}— ${i.nome}`).join(', ');
     const total   = Number(r.total_mt);
     return `<tr>
       <td><code style="font-size:.78rem;font-weight:800;color:var(--primary);background:var(--primary-light);padding:2px 7px;border-radius:4px">${r.codigo}</code></td>
@@ -933,8 +1142,8 @@ function renderReservasTable(reservas) {
       <td style="font-size:.78rem;white-space:nowrap">${new Date(r.criada_em).toLocaleString('pt-MZ')}</td>
       <td style="font-weight:700">${total.toLocaleString()} MT</td>
       <td><span class="status-badge badge-${r.status}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
-      <td>${r.receita_path ? `<button class="btn-icon" onclick="verReceita('${r.id}')" title="Ver receita"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>` : '<span style="color:var(--text-light);font-size:.75rem">â€”</span>'}</td>
-      <td>${r.status === 'pendente' ? `<button class="btn-mark-paid" onclick="marcarPago('${r.id}')">Marcar Pago</button>` : 'â€”'}</td>
+      <td>${r.receita_path ? `<button class="btn-icon" onclick="verReceita('${r.id}')" title="Ver receita"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>` : '<span style="color:var(--text-light);font-size:.75rem">—</span>'}</td>
+      <td>${r.status === 'pendente' ? `<button class="btn-mark-paid" onclick="marcarPago('${r.id}')">Marcar Pago</button>` : '—'}</td>
     </tr>`;
   }).join('');
 }
@@ -957,15 +1166,15 @@ async function verReceita(id) {
     const data = await apiCall(`/reservas/${id}/receita`);
     const ext  = data.url?.split('.').pop()?.toLowerCase();
     if (ext === 'pdf') {
-      document.getElementById('receitaContent').innerHTML = `<p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem">Receita em formato PDF:</p><a class="receita-url-link" href="${data.url}" target="_blank"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Abrir PDF da Receita</a><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">VÃ¡lido por 15 minutos.</p>`;
+      document.getElementById('receitaContent').innerHTML = `<p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem">Receita em formato PDF:</p><a class="receita-url-link" href="${data.url}" target="_blank"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Abrir PDF da Receita</a><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">Válido por 15 minutos.</p>`;
     } else {
-      document.getElementById('receitaContent').innerHTML = `<img src="${data.url}" alt="Receita mÃ©dica" onerror="this.outerHTML='<p style=color:var(--danger)>Erro ao carregar imagem.</p>'"/><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">VÃ¡lido por 15 minutos.</p>`;
+      document.getElementById('receitaContent').innerHTML = `<img src="${data.url}" alt="Receita médica" onerror="this.outerHTML='<p style=color:var(--danger)>Erro ao carregar imagem.</p>'"/><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">Válido por 15 minutos.</p>`;
     }
   } catch (err) { document.getElementById('receitaContent').innerHTML = `<p style="color:var(--danger);font-size:.85rem">Erro: ${err.message}</p>`; }
 }
 
 // ============================================================
-//  NOTIFICAÃ‡Ã•ES
+//  NOTIFICAÇÕES
 // ============================================================
 function renderNotificacoes(reservas) {
   const pendentes = reservas.filter(r => r.status === 'pendente').length;
@@ -973,7 +1182,7 @@ function renderNotificacoes(reservas) {
   const items = [];
   if (reservationAlertCount) items.push({ type: 'warning', text: `${reservationAlertCount} nova${reservationAlertCount > 1 ? 's' : ''} reserva${reservationAlertCount > 1 ? 's' : ''} acabou de entrar pelo site.`, time: 'Em tempo real' });
   if (pendentes) items.push({ type: 'warning', text: `${pendentes} reserva${pendentes>1?'s':''} pendente${pendentes>1?'s':''} aguardam levantamento.`, time: 'Agora' });
-  if (!items.length) { notifEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text">Nenhuma notificaÃ§Ã£o pendente.</div></div>`; return; }
+  if (!items.length) { notifEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text">Nenhuma notificação pendente.</div></div>`; return; }
   notifEl.innerHTML = items.map(it => `<div class="notif-item"><div class="notif-dot dot-${it.type}"></div><div><div class="notif-text">${it.text}</div><div class="notif-time">${it.time}</div></div></div>`).join('');
 }
 
@@ -992,6 +1201,147 @@ function adminNav(section, el) {
   }
   if (section === 'reservas') loadReservas();
   if (section === 'stock')    loadStock();
+  if (section === 'farmacia') loadFarmaciaProfile();
+  // Fechar sidebar no mobile após navegar
+  closeSidebar();
+}
+
+// ============================================================
+//  SIDEBAR MOBILE
+// ============================================================
+function toggleSidebar() {
+  const sidebar = document.getElementById('adminSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const closeBtn = document.getElementById('btnCloseSidebar');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('open');
+  closeBtn.style.display = sidebar.classList.contains('open') ? 'flex' : 'none';
+}
+function closeSidebar() {
+  const sidebar = document.getElementById('adminSidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const closeBtn = document.getElementById('btnCloseSidebar');
+  sidebar.classList.remove('open');
+  overlay.classList.remove('open');
+  closeBtn.style.display = 'none';
+}
+function initMobileUI() {
+  const topbar = document.getElementById('mobileTopbar');
+  if (window.innerWidth <= 768) {
+    topbar.style.display = 'flex';
+  } else {
+    topbar.style.display = 'none';
+    closeSidebar();
+  }
+}
+window.addEventListener('resize', initMobileUI);
+
+// ============================================================
+//  FARMÁCIA PROFILE
+// ============================================================
+let farmaciaData = null;
+
+async function loadFarmaciaProfile() {
+  try {
+    const data = await apiCall('/perfil');
+    farmaciaData = data.farmacia || data;
+    renderFarmaciaProfile(farmaciaData);
+  } catch (err) {
+    // Tentar carregar do dashboard se existir
+    if (latestDashboard && latestDashboard.farmacia) {
+      farmaciaData = latestDashboard.farmacia;
+      renderFarmaciaProfile(farmaciaData);
+    } else {
+      showToast('Erro ao carregar perfil: ' + err.message, 'error');
+    }
+  }
+}
+
+function renderFarmaciaProfile(f) {
+  if (!f) return;
+  // Header
+  document.getElementById('pfNome').textContent = f.nome || 'Farmácia';
+  document.getElementById('pfId').textContent = 'ID: ' + (f.id ? f.id.toString().substring(0,8).toUpperCase() : '—');
+  // Contactos
+  document.getElementById('pfEmail').textContent = f.email || currentUser?.email || '—';
+  document.getElementById('pfTelInput').value = f.telefone || f.tel || f.contacto || '';
+  // Localização
+  document.getElementById('pfCidade').textContent = f.cidade || f.municipio || '—';
+  document.getElementById('pfBairro').textContent = f.bairro || f.endereco || f.morada || '—';
+  if (f.latitude && f.longitude) {
+    document.getElementById('pfGeoField').style.display = 'block';
+    document.getElementById('pfMapLink').href = `https://maps.google.com/?q=${f.latitude},${f.longitude}`;
+  }
+  // Datas
+  document.getElementById('pfCriadaEm').textContent = f.criada_em || f.created_at ? new Date(f.criada_em || f.created_at).toLocaleDateString('pt-MZ', {year:'numeric',month:'long',day:'numeric'}) : '—';
+  document.getElementById('pfUpdatedAt').textContent = f.updated_at ? new Date(f.updated_at).toLocaleDateString('pt-MZ', {year:'numeric',month:'long',day:'numeric'}) : '—';
+  // Tipo e licença
+  document.getElementById('pfTipo').textContent = f.tipo || f.categoria || 'Farmácia';
+  document.getElementById('pfLicenca').textContent = f.licenca || f.alvara || f.numero_licenca || '—';
+  // Horário
+  const horario = f.horario || f.horarios;
+  if (horario) {
+    renderHorario(horario);
+    document.getElementById('pfHorarioCard').style.display = 'block';
+  }
+}
+
+function renderHorario(horario) {
+  const dias = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+  const keys = ['segunda','terca','quarta','quinta','sexta','sabado','domingo'];
+  let html = '';
+  if (typeof horario === 'object' && !Array.isArray(horario)) {
+    keys.forEach((key, i) => {
+      const val = horario[key] || horario[dias[i]] || horario[dias[i].toLowerCase()];
+      html += `<div class="profile-horario-item"><div class="profile-horario-dia">${dias[i]}</div><div class="profile-horario-hora ${!val || val === 'fechado' ? 'profile-horario-fechado' : ''}">${val || 'Fechado'}</div></div>`;
+    });
+  }
+  document.getElementById('pfHorarioGrid').innerHTML = html || '<p style="font-size:.8rem;color:var(--text-muted)">Sem horário registado.</p>';
+}
+
+function startEditTel() {
+  const input = document.getElementById('pfTelInput');
+  const btn   = document.getElementById('btnEditTel');
+  input.disabled = false;
+  input.focus();
+  btn.textContent = 'Guardar';
+  btn.className = 'btn-save-tel';
+  btn.onclick = saveTel;
+}
+
+async function saveTel() {
+  const input   = document.getElementById('pfTelInput');
+  const btn     = document.getElementById('btnEditTel');
+  const fb      = document.getElementById('pfTelFeedback');
+  const newTel  = input.value.trim();
+  if (!newTel) {
+    fb.textContent = 'Insira um número de telefone válido.';
+    fb.style.color = 'var(--danger)';
+    fb.style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'A guardar...';
+  fb.style.display = 'none';
+  try {
+    await apiCall('/perfil', { method: 'PATCH', body: JSON.stringify({ telefone: newTel }) });
+    input.disabled = true;
+    btn.textContent = 'Editar';
+    btn.className = 'btn-edit-tel';
+    btn.onclick = startEditTel;
+    btn.disabled = false;
+    fb.textContent = '✓ Número actualizado com sucesso.';
+    fb.style.color = 'var(--success)';
+    fb.style.display = 'block';
+    setTimeout(() => { fb.style.display = 'none'; }, 3000);
+    showToast('Telefone actualizado!', 'success');
+  } catch (err) {
+    fb.textContent = 'Erro: ' + err.message;
+    fb.style.color = 'var(--danger)';
+    fb.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Guardar';
+  }
 }
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -1013,4 +1363,3 @@ function showToast(msg, type = '') {
 </script>
 </body>
 </html>
-
