@@ -3,1363 +3,655 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#004D3B">
-<title>Makinino - Portal da farmaciacia</title>
+<meta name="description" content="FarmaFind — Localize e reserve medicamentos nas farmácias mais próximas de si em Moçambique.">
+<meta name="geo.region" content="MZ-MP"> <!-- Geo-tag para Moçambique/Maputo -->
+<title>FarmaFind — Encontre o seu medicamento</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="styles.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root {
   --primary:#007A5E; --primary-light:#E8F5F1; --primary-mid:#3DAB89; --primary-dark:#004D3B;
+  --accent:#F0A500; --accent-light:#FFF8E6;
   --danger:#DC3545; --danger-light:#FDECEA;
   --success:#198754; --success-light:#D1E7DD;
   --warning:#E67E22; --warning-light:#FEF3E2;
   --text:#0D1B2A; --text-muted:#6B7C93; --text-light:#A0AEBA;
   --border:#E4EAF0; --bg:#F5F8FA; --card:#FFFFFF;
-  --radius:14px; --radius-sm:8px;
-  --shadow-sm:0 2px 8px rgba(0,0,0,.06); --shadow:0 4px 20px rgba(0,0,0,.08); --shadow-lg:0 12px 40px rgba(0,0,0,.12);
+  --radius:14px; --radius-sm:8px; --radius-lg:20px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.06); --shadow:0 4px 20px rgba(0,0,0,0.08); --shadow-lg:0 12px 40px rgba(0,0,0,0.12);
   --t:all 0.25s cubic-bezier(0.4,0,0.2,1);
 }
-*,*::before,*::after{
-  box-sizing:border-box;
-  margin:0;padding:0;
-}
-body{
-  font-family:'Sora',sans-serif;
-background:var(--bg);color:var(--text);
-line-height:1.55;
--webkit-font-smoothing:antialiased;
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
 
-#loginScreen{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:linear-gradient(140deg,var(--primary-dark),var(--primary));
-}
-.login-card{
-  background:white;
-  border-radius:20px;
-  padding:2.5rem;
-  width:100%;
-  max-width:400px;
-  box-shadow:var(--shadow-lg);
-}
-.login-logo{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:2rem;
-  justify-content:center;
-}
-.login-logo-mark{
-  width:44px;
-  height:44px;
-  background:var(--primary);
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.login-logo-mark svg{
-  width:24px;height:24px;
-  fill:white;
-}
-.login-logo-name{
-  font-family:'DM Serif Display',serif;
-  font-size:1.8rem;
-  color:var(--primary);
-}
-.login-logo-name span
-{color:var(--primary-mid);
-}
-.login-sub{
-  text-align:center;
-  font-size:.85rem;
-  color:var(--text-muted);
-  margin-bottom:2rem;
-}
-.login-field{
-  margin-bottom:1rem;
-}
-.login-label{
-  display:block;
-  font-size:.78rem;
-  font-weight:700;
-  color:var(--text);
-  margin-bottom:5px;
-  text-transform:uppercase;
-  letter-spacing:.04em;
-}
-.login-input{
-  width:100%;
-  padding:12px 14px;
-  border:1.5px solid var(--border);
-  border-radius:var(--radius-sm);
-  font-family:'Sora',sans-serif;
-  font-size:.94rem;
-  color:var(--text);
-  background:var(--bg);
-  outline:none;
-  transition:var(--t);
-  
-}
-.login-input:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 3px rgba(0,122,94,1);}
-.btn-login{width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:var(--t);margin-top:.5rem;}
-.btn-login:hover{background:var(--primary-dark);}
-.btn-login:disabled{opacity:.6;cursor:not-allowed;}
-.login-error{background:var(--danger-light);border:1px solid var(--danger);border-radius:var(--radius-sm);padding:10px 14px;font-size:.82rem;color:var(--danger);margin-bottom:1rem;display:none;}
+/* overlay */
+#overlay{position:fixed;inset:0;background:rgba(13,27,42,.5);z-index:1800;display:none;opacity:0;transition:opacity .3s ease;backdrop-filter:blur(3px);}
+#overlay.visible{display:block;opacity:1;}
 
-#adminApp{display:none;min-height:100vh;}
-.admin-grid{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
-.admin-sidebar{background:var(--primary-dark);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto;}
-.admin-logo{font-family:'DM Serif Display',serif;font-size:1.1rem;color:rgba(255,255,255,.9);margin-bottom:1.5rem;padding:0 8px;}
-.admin-logo span{color:var(--primary-mid);}
-.admin-profile{background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:1rem;display:flex;align-items:center;gap:10px;}
-.admin-avatar{width:36px;height:36px;border-radius:50%;background:var(--primary-mid);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.88rem;color:var(--primary-dark);flex-shrink:0;}
-.admin-name{font-size:.8rem;font-weight:700;color:white;}
-.admin-role{font-size:.7rem;color:rgba(255,255,255,.5);}
-.admin-nav-item{padding:10px 12px;border-radius:9px;color:rgba(255,255,255,.65);cursor:pointer;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:10px;transition:var(--t);border:none;background:none;width:100%;text-align:left;}
-.admin-nav-item:hover{background:rgba(255,255,255,.1);color:white;}
-.admin-nav-item.active{background:var(--primary-mid);color:var(--primary-dark);}
-.admin-nav-item svg{width:16px;height:16px;flex-shrink:0;}
-.admin-nav-divider{height:1px;background:rgba(255,255,255,.1);margin:8px 4px;}
-.notif-count{margin-left:auto;background:var(--danger);color:white;font-size:.65rem;font-weight:800;padding:1px 6px;border-radius:100px;}
-.admin-nav-item.has-live-alert{background:rgba(230,126,34,.18);color:#FFD9A8;box-shadow:inset 0 0 0 1px rgba(230,126,34,.42);}
-.admin-nav-item.has-live-alert .notif-count{background:var(--warning);color:#3D2400;}
-.nav-alert-light{width:10px;height:10px;border-radius:50%;background:transparent;box-shadow:none;transition:var(--t);margin-left:auto;}
-.nav-alert-light.is-on{background:var(--warning);box-shadow:0 0 0 4px rgba(230,126,34,.18),0 0 14px rgba(230,126,34,.55);animation:pulseAlert 1.5s infinite;}
-@keyframes pulseAlert{0%{transform:scale(1);opacity:1;}70%{transform:scale(1.18);opacity:.82;}100%{transform:scale(1);opacity:1;}}
-.btn-logout{margin-top:auto;padding:9px 12px;border-radius:9px;color:rgba(255,255,255,.5);cursor:pointer;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:8px;transition:var(--t);border:none;background:none;width:100%;}
-.btn-logout:hover{background:rgba(220,53,69,.2);color:#FF8888;}
-.btn-logout svg{width:14px;height:14px;}
+/* header */
+header{background:var(--card);border-bottom:1px solid var(--border);padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1000;box-shadow:var(--shadow-sm);}
+.logo{display:flex;align-items:center;gap:10px;font-family:'DM Serif Display',serif;font-size:1.55rem;color:var(--primary);cursor:pointer;text-decoration:none;user-select:none;}
+.logo-mark{width:36px;height:36px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.logo-mark svg{width:20px;height:20px;fill:white;}
+.logo span{color:var(--primary-mid);}
+.header-right{display:flex;align-items:center;gap:10px;}
+.header-actions{display:flex;align-items:center;gap:10px;}
+.icon-btn{position:relative;width:42px;height:42px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);}
+.icon-btn:hover{background:var(--primary-light);color:var(--primary);border-color:var(--primary-mid);}
+.icon-btn svg{width:19px;height:19px;}
+.icon-badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:white;font-size:.6rem;font-weight:700;min-width:18px;height:18px;border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;}
+.mobile-menu-btn{display:none;}
 
-.btn-recover{margin-top:auto;
-  padding:9px 12px;
-  border-radius:9px;
-  color:rgba(0, 122, 94, 1);
-  cursor:pointer;font-size:.78rem;
-  font-weight:600;
-  display:flex;
-  justify-self: center;
-  align-items:center;
-  gap:8px;
-  justify-content: center;
-  transition:var(--t);
-  border:none;
-  background: none;
-  width:50%;
-}
-.btn-recover:hover{
-  background:none;
-  color: rgba(0, 122, 94, 0.7);
-}
-.btn-recover svg{
-  width:14px;
-  height:14px;
-}
+/* hero */
+.hero{background:linear-gradient(140deg,var(--primary-dark) 0%,var(--primary) 55%,var(--primary-mid) 100%);padding:3.5rem 5% 5rem;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;border:70px solid rgba(255,255,255,.05);top:-180px;right:-100px;pointer-events:none;}
+.hero h1{font-family:'DM Serif Display',serif;font-size:2.4rem;color:white;margin-bottom:.5rem;position:relative;}
+.hero p{color:rgba(255,255,255,.75);font-size:1rem;position:relative;}
 
-.admin-main{padding:2rem;background:var(--bg);overflow-y:auto;}
-.admin-page-title{font-family:'DM Serif Display',serif;font-size:1.8rem;margin-bottom:.25rem;}
-.admin-page-sub{font-size:.85rem;color:var(--text-muted);margin-bottom:1.5rem;}
+/* search */
+.search-wrapper{max-width:780px;margin:-32px auto 0;padding:0 5%;position:relative;z-index:100;}
+.search-card{background:var(--card);border-radius:var(--radius-lg);padding:1.1rem;box-shadow:var(--shadow-lg);border:1px solid var(--border);display:flex;gap:10px;align-items:center;}
+.search-field-wrap{flex:1;position:relative;}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);width:18px;height:18px;pointer-events:none;}
+.search-input{width:100%;padding:12px 14px 12px 44px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.92rem;color:var(--text);background:var(--bg);outline:none;transition:var(--t);}
+.search-input:focus{border-color:var(--primary);background:var(--card);box-shadow:0 0 0 3px rgba(0,122,94,.12);}
+.suggestions-box{position:absolute;top:calc(100% + 6px);left:0;width:100%;background:var(--card);border-radius:var(--radius-sm);border:1px solid var(--border);box-shadow:var(--shadow);z-index:200;max-height:240px;overflow-y:auto;display:none;}
+.suggestion-item{padding:10px 16px;font-size:.88rem;cursor:pointer;transition:var(--t);display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);color:var(--text);}
+.suggestion-item:last-child{border-bottom:none;}
+.suggestion-item:hover{background:var(--primary-light);color:var(--primary);}
+.suggestion-item svg{width:14px;height:14px;opacity:.5;flex-shrink:0;}
+.btn-search{padding:12px 24px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:var(--t);white-space:nowrap;display:flex;align-items:center;gap:8px;}
+.btn-search:hover{background:var(--primary-dark);transform:translateY(-1px);}
+.btn-search svg{width:16px;height:16px;}
+.quick-searches{display:flex;flex-wrap:wrap;gap:7px;padding:1rem 1rem 0;align-items:center;}
+.quick-label{font-size:.75rem;color:var(--text-muted);font-weight:600;margin-right:4px;}
+.quick-pill{padding:5px 13px;background:var(--primary-light);color:var(--primary);border-radius:100px;font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid rgba(0,122,94,.2);transition:var(--t);}
+.quick-pill:hover{background:var(--primary);color:white;}
 
-/* stats */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
-.stat-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem;}
-.stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
-.stat-icon svg{width:18px;height:18px;}
-.stat-label{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
-.stat-value{font-size:1.9rem;font-weight:300;font-family:'DM Serif Display',serif;color:var(--text);line-height:1;}
-.stat-sub{font-size:.72rem;margin-top:5px;}
-.admin-panels{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem;}
-
-/* panels */
-.panel{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;}
-.panel-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);}
-.panel-title{font-size:.9rem;font-weight:700;}
-.chart-box{padding:1rem 1.25rem 1.25rem;}
-.panel-body{padding:1rem 1.25rem 1.25rem;}
-.dashboard-highlight{display:grid;grid-template-columns:1.2fr .8fr;gap:1rem;margin-bottom:1rem;}
-.hero-panel{background:linear-gradient(135deg,#0E7A5F 0%,#169B7C 55%,#C7F1E4 140%);color:white;border:none;position:relative;overflow:hidden;}
-.hero-panel .panel-header{background:transparent;border-bottom:none;padding-bottom:.25rem;}
-.hero-panel .panel-title{color:white;}
-.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;}
-.hero-kpi{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:.9rem;}
-.hero-kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.75);}
-.hero-kpi-value{font-family:'DM Serif Display',serif;font-size:1.8rem;line-height:1.05;margin-top:.25rem;}
-.hero-kpi-sub{font-size:.74rem;color:rgba(255,255,255,.78);margin-top:.2rem;}
-.compact-list{display:flex;flex-direction:column;gap:.75rem;}
-.compact-row{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:.8rem .95rem;border:1px solid var(--border);border-radius:12px;background:linear-gradient(180deg,#FFFFFF 0%,#FBFCFD 100%);}
-.compact-row-main{min-width:0;}
-.compact-row-title{font-size:.84rem;font-weight:700;color:var(--text);}
-.compact-row-sub{font-size:.74rem;color:var(--text-muted);margin-top:.2rem;line-height:1.45;}
-.compact-row-meta{text-align:right;white-space:nowrap;}
-.compact-row-value{font-size:.86rem;font-weight:800;color:var(--text);}
-.compact-row-rank{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;padding:0 7px;border-radius:999px;background:var(--warning-light);color:#8A4F08;font-size:.72rem;font-weight:800;}
-.insight-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
-.weekly-table-wrap{overflow-x:auto;}
-.empty-inline{font-size:.8rem;color:var(--text-muted);padding:.75rem 0;}
-
-/* table */
-.data-table{width:100%;border-collapse:collapse;}
-.data-table th{text-align:left;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);padding:9px 16px;background:var(--bg);border-bottom:1px solid var(--border);}
-.data-table td{padding:11px 16px;font-size:.82rem;border-bottom:.5px solid var(--border);color:var(--text);vertical-align:middle;}
-.data-table tr:last-child td{border-bottom:none;}
-.data-table tr:hover td{background:#FAFBFC;}
-.mini-bar-wrap{display:flex;align-items:center;gap:8px;}
-.mini-bar-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
-.mini-bar-fill{height:100%;border-radius:3px;}
-.btn-icon{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--card);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--t);color:var(--text-muted);}
-.btn-icon svg{width:14px;height:14px;}
-.btn-icon:hover{color:var(--primary);background:var(--primary-light);border-color:var(--primary-mid);}
-.btn-icon.danger:hover{color:var(--danger);background:var(--danger-light);border-color:var(--danger);}
-.status-badge{padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:700;display:inline-block;}
-.badge-pago{background:var(--success-light);color:var(--success);}
-.badge-pendente{background:var(--warning-light);color:var(--warning);}
-.badge-cancelado{background:var(--danger-light);color:var(--danger);}
-.btn-mark-paid{padding:5px 11px;background:var(--success-light);border:1px solid var(--success);border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;color:var(--success);transition:var(--t);}
-.btn-mark-paid:hover{background:var(--success);color:white;}
-.btn-add-green{padding:8px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:var(--t);}
-.btn-add-green:hover{background:var(--primary-dark);}
-.btn-add-green svg{width:13px;height:13px;}
+/* main */
+.main-content{max-width:1300px;margin:2.5rem auto;padding:0 5%;}
+.user-grid{display:grid;grid-template-columns:1fr 400px;gap:1.5rem;align-items:start;}
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.results-title{font-size:1rem;font-weight:700;}
 .results-count{font-size:.78rem;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);padding:3px 10px;border-radius:100px;}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3.5rem 2rem;text-align:center;background:var(--card);border-radius:var(--radius);border:1.5px dashed var(--border);}
+.empty-state-icon{font-size:2.5rem;margin-bottom:1rem;opacity:.7;}
+.empty-state h3{font-size:1.05rem;margin-bottom:.4rem;}
+.empty-state p{font-size:.85rem;color:var(--text-muted);max-width:280px;line-height:1.6;}
+.results-list{display:flex;flex-direction:column;gap:1rem;}
 
-/* notifs */
-.notif-item{padding:12px 16px;display:flex;gap:10px;border-bottom:.5px solid var(--border);transition:background .15s;}
-.notif-item:last-child{border-bottom:none;}
-.notif-item:hover{background:var(--bg);}
-.notif-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:5px;}
-.dot-danger{background:var(--danger);}
-.dot-warning{background:var(--warning);}
-.dot-success{background:var(--success);}
-.notif-text{font-size:.8rem;color:var(--text);line-height:1.5;}
-.notif-time{font-size:.7rem;color:var(--text-muted);margin-top:2px;}
+/* pharmacy card */
+.pharmacy-card{background:var(--card);border-radius:var(--radius);border:1.5px solid var(--border);padding:1.25rem;transition:var(--t);position:relative;overflow:hidden;}
+.pharmacy-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary);border-radius:4px 0 0 4px;opacity:0;transition:opacity .2s;}
+.pharmacy-card:hover{border-color:var(--primary-mid);box-shadow:var(--shadow);transform:translateY(-2px);}
+.pharmacy-card:hover::before,.pharmacy-card.selected::before{opacity:1;}
+.pharmacy-card.selected{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,122,94,.1);}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;}
+.card-name{font-size:1rem;font-weight:700;}
+.card-address{font-size:.78rem;color:var(--text-muted);margin-top:2px;}
+.stock-pill{padding:4px 11px;border-radius:100px;font-size:.7rem;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.stock-ok{background:var(--success-light);color:var(--success);}
+.stock-baixo{background:var(--warning-light);color:var(--warning);}
+.stock-critico{background:var(--danger-light);color:var(--danger);}
+.card-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--text-muted);margin-bottom:12px;}
+.meta-chip{display:flex;align-items:center;gap:5px;}
+.meta-chip svg{width:13px;height:13px;flex-shrink:0;}
+.stock-bar-row{margin-bottom:12px;}
+.stock-bar-label{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-muted);margin-bottom:5px;}
+.stock-bar-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.stock-bar-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+.receita-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:var(--accent-light);border:1px solid #F0C940;border-radius:100px;font-size:.7rem;font-weight:600;color:#7A5200;margin-bottom:10px;}
+.receita-badge svg{width:11px;height:11px;}
+.card-actions{display:flex;gap:8px;}
+.btn-add{flex:1;padding:10px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:var(--t);display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-add:hover{background:var(--primary-dark);}
+.btn-add svg{width:14px;height:14px;}
+.btn-secondary{padding:10px 14px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;color:var(--text);transition:var(--t);display:flex;align-items:center;gap:5px;}
+.btn-secondary:hover{border-color:var(--primary-mid);color:var(--primary);background:var(--primary-light);}
+.btn-secondary svg{width:14px;height:14px;}
+
+/* map panel */
+.map-panel{position:sticky;top:80px;background:var(--card);border-radius:var(--radius);border:1.5px solid var(--border);overflow:hidden;box-shadow:var(--shadow-sm);}
+.map-panel-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);}
+.map-panel-title{font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:6px;}
+.map-panel-title svg{width:14px;height:14px;color:var(--primary);}
+.map-legend{display:flex;gap:10px;font-size:.7rem;color:var(--text-muted);}
+.legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:3px;}
+#map{height:360px;}
+.map-footer{padding:10px 16px;border-top:1px solid var(--border);font-size:.72rem;color:var(--text-muted);text-align:center;background:var(--bg);}
+
+/* sidebars */
+.sidebar{position:fixed;top:0;right:-420px;width:400px;height:100vh;background:var(--card);z-index:2000;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;transition:right .4s cubic-bezier(.4,0,.2,1);}
+.sidebar.open{right:0;}
+.sidebar-header{padding:1.2rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);flex-shrink:0;}
+.sidebar-header h3{font-size:1rem;font-weight:700;}
+.sidebar-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--text-muted);transition:var(--t);}
+.sidebar-close:hover{background:var(--danger-light);color:var(--danger);border-color:var(--danger);}
+.sidebar-body{flex:1;overflow-y:auto;padding:1.2rem 1.4rem;}
+.sidebar-body::-webkit-scrollbar{width:4px;}
+.sidebar-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.sidebar-footer{padding:1.2rem 1.4rem;border-top:1px solid var(--border);background:var(--bg);flex-shrink:0;}
+.mobile-nav-sidebar{left:-320px;right:auto;width:300px;}
+.mobile-nav-sidebar.open{left:0;}
+.mobile-nav-list{display:flex;flex-direction:column;gap:10px;}
+.mobile-nav-link{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);text-decoration:none;font-size:.88rem;font-weight:600;transition:var(--t);width:100%;font-family:'Sora',sans-serif;cursor:pointer;}
+.mobile-nav-link:hover{background:var(--primary-light);border-color:var(--primary-mid);color:var(--primary);}
+.mobile-nav-link svg{width:18px;height:18px;color:var(--primary);flex-shrink:0;}
+.mobile-nav-note{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--primary-light);border:1px solid rgba(0,122,94,.15);font-size:.78rem;color:var(--primary-dark);line-height:1.6;}
+
+/* cart */
+.cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text-muted);font-size:.88rem;gap:8px;}
+.cart-empty svg{width:36px;height:36px;opacity:.3;}
+.cart-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.cart-item-info{flex:1;min-width:0;}
+.cart-item-name{font-weight:700;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cart-item-price{font-size:.78rem;color:var(--text-muted);margin-top:1px;}
+.qty-controls{display:flex;align-items:center;gap:8px;margin-top:5px;}
+.qty-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:var(--t);color:var(--text);}
+.qty-val{font-size:.85rem;font-weight:700;min-width:20px;text-align:center;}
+.cart-item-total{font-weight:700;font-size:.9rem;color:var(--primary);flex-shrink:0;}
+.cart-remove{padding:4px 7px;background:none;border:none;cursor:pointer;color:var(--text-light);border-radius:4px;transition:var(--t);}
+.cart-remove:hover{color:var(--danger);background:var(--danger-light);}
+.cart-remove svg{width:13px;height:13px;}
+.cart-pharma-tag{font-size:.72rem;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:5px;padding:5px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--border);}
+.cart-summary-row{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:6px;color:var(--text-muted);}
+.cart-total-row{display:flex;justify-content:space-between;font-weight:700;font-size:1rem;padding-top:8px;border-top:1.5px solid var(--border);margin-bottom:12px;}
+.btn-checkout{width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.92rem;cursor:pointer;transition:var(--t);}
+
+/* tickets */
+.ticket{background:var(--card);border-radius:var(--radius);border:1.5px solid var(--border);overflow:hidden;margin-bottom:1rem;}
+.ticket-header{background:var(--primary);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.ticket-pharma{color:rgba(255,255,255,.8);font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.ticket-code{font-family:monospace;font-size:1.1rem;font-weight:800;color:white;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:6px;letter-spacing:2px;}
+.ticket-body{padding:12px 16px;}
+.ticket-row{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:4px;}
+.ticket-label{color:var(--text-muted);}
+.ticket-value{font-weight:600;}
+.ticket-items-list{margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);}
+.ticket-item-row{font-size:.78rem;color:var(--text-muted);margin-bottom:2px;}
+.ticket-footer{background:var(--bg);padding:8px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ticket-status{font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:100px;}
+.status-active{background:var(--success-light);color:var(--success);}
+.status-paid{background:var(--primary-light);color:var(--primary);}
+.ticket-total{font-weight:800;font-size:.88rem;color:var(--primary);}
+.ticket-location{border-top:1px solid var(--border);padding:10px 16px;background:var(--card);}
+.ticket-location-addr{font-size:.75rem;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:flex-start;gap:5px;line-height:1.4;}
+.ticket-map-thumb{width:100%;height:110px;border-radius:8px;overflow:hidden;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;position:relative;}
+.ticket-map-thumb iframe{width:100%;height:100%;border:none;pointer-events:none;}
+.ticket-map-overlay{position:absolute;inset:0;background:rgba(0,122,94,.15);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
+.ticket-map-thumb:hover .ticket-map-overlay{opacity:1;}
+.ticket-map-overlay-label{background:var(--primary);color:white;font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:100px;display:flex;align-items:center;gap:5px;}
+.btn-open-maps{flex:1;padding:8px;background:var(--primary);color:white;border:none;border-radius:7px;font-family:'Sora',sans-serif;font-weight:700;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:var(--t);}
+.btn-call-pharma{padding:8px 12px;background:var(--bg);color:var(--text);border:1.5px solid var(--border);border-radius:7px;font-family:'Sora',sans-serif;font-weight:700;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;text-decoration:none;}
 
 /* modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(13,27,42,.55);display:none;align-items:center;justify-content:center;z-index:2500;padding:1rem;backdrop-filter:blur(4px);}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--card);border-radius:18px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .3s cubic-bezier(.4,0,.2,1);}
+.modal{background:var(--card);border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .3s cubic-bezier(.4,0,.2,1);}
 @keyframes modalIn{from{transform:translateY(24px) scale(.97);opacity:0;}}
-.modal-header{padding:1.3rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);position:sticky;top:0;z-index:1;}
-.modal-header h2{font-size:1.05rem;font-weight:700;}
-.modal-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;font-size:.9rem;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:var(--t);}
-.modal-close:hover{background:var(--danger-light);color:var(--danger);}
+.modal-header{padding:1.3rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--card);z-index:1;}
+.modal-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .modal-body{padding:1.5rem;}
+.info-banner{background:var(--primary-light);border:1px solid rgba(0,122,94,.2);border-radius:var(--radius-sm);padding:10px 14px;font-size:.8rem;color:var(--primary-dark);line-height:1.6;margin-bottom:1.2rem;display:flex;gap:8px;}
+.checkout-items{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:1.2rem;}
+.checkout-item-row{display:flex;justify-content:space-between;padding:9px 13px;font-size:.82rem;border-bottom:1px solid var(--border);}
+.checkout-total-row{display:flex;justify-content:space-between;padding:10px 13px;font-weight:800;font-size:.9rem;background:var(--primary-light);color:var(--primary);border-top:1.5px solid rgba(0,122,94,.2);}
 .form-group{margin-bottom:1rem;}
 .form-label{display:block;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
 .form-control{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.9rem;color:var(--text);background:var(--bg);outline:none;transition:var(--t);}
 .form-control:focus{border-color:var(--primary);background:var(--card);box-shadow:0 0 0 3px rgba(0,122,94,.08);}
-.form-hint{font-size:.72rem;color:var(--text-muted);margin-top:4px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
-.form-error{font-size:.78rem;color:var(--danger);margin-top:4px;display:none;}
+.file-upload-box{border:1.5px dashed var(--border);border-radius:var(--radius-sm);padding:1.2rem;text-align:center;cursor:pointer;transition:var(--t);font-size:.82rem;color:var(--text-muted);}
+.file-upload-box.uploaded{border-color:var(--success);color:var(--success);background:var(--success-light);}
 .modal-footer{padding:1rem 1.5rem 1.5rem;display:flex;gap:10px;}
-.btn-cancel{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:'Sora',sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;color:var(--text-muted);transition:var(--t);}
-.btn-cancel:hover{border-color:var(--text-muted);color:var(--text);}
-.btn-primary{flex:2;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:var(--t);}
-.btn-primary:hover{background:var(--primary-dark);}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+.btn-cancel{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:'Sora',sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;color:var(--text-muted);}
+.btn-primary{flex:2;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;}
 
-/* receita viewer */
-.receita-viewer{text-align:center;padding:1rem;}
-.receita-viewer img{max-width:100%;border-radius:8px;border:1px solid var(--border);}
-.receita-url-link{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:var(--primary);color:white;border-radius:8px;font-weight:700;font-size:.85rem;text-decoration:none;margin-top:1rem;transition:var(--t);}
-.receita-url-link:hover{background:var(--primary-dark);}
-
-/* ============================================================
-   FARMACIA PROFILE SECTION
-   ============================================================ */
-.profile-header-card{background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 100%);border-radius:var(--radius);padding:1.75rem;color:white;margin-bottom:1.25rem;position:relative;overflow:hidden;}
-.profile-header-card::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(255,255,255,.06);border-radius:50%;}
-.profile-farmacia-name{font-family:'DM Serif Display',serif;font-size:1.6rem;margin-bottom:.25rem;}
-.profile-farmacia-id{font-size:.75rem;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase;}
-.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;}
-@media(max-width:600px){.profile-grid{grid-template-columns:1fr;}}
-.profile-info-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;}
-.profile-info-card-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:6px;}
-.profile-info-card-title svg{width:14px;height:14px;}
-.profile-field{margin-bottom:.85rem;}
-.profile-field:last-child{margin-bottom:0;}
-.profile-field-label{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
-.profile-field-value{font-size:.9rem;color:var(--text);font-weight:500;}
-.profile-field-editable{display:flex;align-items:center;gap:8px;}
-.profile-tel-input{flex:1;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-size:.9rem;color:var(--text);background:var(--bg);outline:none;transition:var(--t);}
-.profile-tel-input:focus{border-color:var(--primary);background:var(--card);box-shadow:0 0 0 3px rgba(0,122,94,.08);}
-.profile-tel-input:disabled{background:var(--bg);color:var(--text-muted);cursor:default;}
-.btn-edit-tel{padding:9px 14px;background:var(--primary-light);color:var(--primary);border:1.5px solid var(--primary-mid);border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:var(--t);white-space:nowrap;}
-.btn-edit-tel:hover{background:var(--primary);color:white;}
-.btn-save-tel{padding:9px 14px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:'Sora',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:var(--t);white-space:nowrap;}
-.btn-save-tel:hover{background:var(--primary-dark);}
-.btn-save-tel:disabled{opacity:.5;cursor:not-allowed;}
-.profile-tel-feedback{font-size:.75rem;margin-top:5px;display:none;}
-.profile-status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;font-size:.75rem;font-weight:700;}
-.profile-badge-ativo{background:var(--success-light);color:var(--success);}
-.profile-badge-dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
-.profile-full-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;}
-.profile-full-card-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:6px;}
-.profile-full-card-title svg{width:14px;height:14px;}
-.profile-map-link{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;color:var(--primary);font-weight:600;text-decoration:none;transition:var(--t);}
-.profile-map-link:hover{color:var(--primary-dark);}
-.profile-horario-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.65rem;margin-top:.5rem;}
-.profile-horario-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.65rem .9rem;}
-.profile-horario-dia{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);}
-.profile-horario-hora{font-size:.82rem;font-weight:600;color:var(--text);margin-top:.2rem;}
-.profile-horario-fechado{color:var(--danger);font-weight:700;}
+/* skeleton */
 .skeleton{background:linear-gradient(90deg,var(--bg) 25%,#edf2f7 50%,var(--bg) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:6px;}
 @keyframes shimmer{from{background-position:200% 0;}to{background-position:-200% 0;}}
+.loading-card{padding:1.25rem;background:var(--card);border-radius:var(--radius);border:1.5px solid var(--border);}
+.skel-line{height:14px;margin-bottom:10px;}
 
 /* toast */
-#toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--text);color:white;border-radius:10px;font-size:.85rem;font-weight:500;box-shadow:var(--shadow-lg);transform:translateY(20px);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease;max-width:340px;}
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;align-items:center;gap:10px;padding:12px 18px;background:var(--text);color:white;border-radius:10px;font-size:.85rem;font-weight:500;box-shadow:var(--shadow-lg);transform:translateY(20px);opacity:0;pointer-events:none;transition:var(--t);max-width:340px;}
 #toast.show{transform:translateY(0);opacity:1;}
 #toast.toast-success{background:var(--success);}
 #toast.toast-error{background:var(--danger);}
-#toast svg{width:16px;height:16px;flex-shrink:0;}
 
-/* admin sections */
-.admin-section{display:none;}
-.admin-section.active{display:block;}
-
-/* ============================================================
-   MOBILE RESPONSIVE
-   ============================================================ */
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:.85rem 1rem;background:var(--primary-dark);position:sticky;top:0;z-index:200;}
-.mobile-topbar-logo{font-family:'DM Serif Display',serif;font-size:1.1rem;color:rgba(255,255,255,.9);}
-.mobile-topbar-logo span{color:var(--primary-mid);}
-.mobile-topbar-right{display:flex;align-items:center;gap:8px;}
-.btn-hamburger{width:38px;height:38px;border-radius:9px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--t);}
-.btn-hamburger:hover{background:rgba(255,255,255,.2);}
-.btn-hamburger svg{width:20px;height:20px;stroke:white;}
-.mobile-notif-dot{width:8px;height:8px;border-radius:50%;background:var(--danger);position:absolute;top:6px;right:6px;display:none;}
-.btn-hamburger{position:relative;}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(13,27,42,.6);z-index:299;backdrop-filter:blur(2px);}
-.sidebar-overlay.open{display:block;}
-
-@media(max-width:768px){
-  .mobile-topbar{display:flex;}
-  .admin-grid{display:block;}
-  .admin-sidebar{
-    position:fixed;left:-260px;top:0;width:250px;height:100vh;z-index:300;
-    transition:left .3s cubic-bezier(.4,0,.2,1);
-    box-shadow:var(--shadow-lg);
-  }
-  .admin-sidebar.open{left:0;}
-  .admin-main{padding:1rem;}
-  .stats-grid{grid-template-columns:1fr 1fr;}
-  .admin-panels{grid-template-columns:1fr;}
-  .form-row{grid-template-columns:1fr;}
-  .dashboard-highlight{grid-template-columns:1fr;}
-  .insight-grid{grid-template-columns:1fr;}
-  .hero-grid{grid-template-columns:1fr 1fr;}
-  .admin-page-title{font-size:1.4rem;}
-  .data-table th,.data-table td{padding:8px 10px;font-size:.75rem;}
-  #toast{bottom:1rem;right:.75rem;left:.75rem;max-width:none;}
-}
-@media(max-width:480px){
-  .stats-grid{grid-template-columns:1fr;}
-  .hero-grid{grid-template-columns:1fr;}
-  .login-card{padding:1.75rem 1.25rem;}
-  .modal{border-radius:16px 16px 0 0;position:fixed;bottom:0;left:0;right:0;max-width:100%;max-height:85vh;}
-  .modal-overlay{align-items:flex-end;padding:0;}
-}
-@media(min-width:769px){
-  .admin-sidebar{position:sticky;top:0;height:100vh;left:0!important;}
-  .admin-grid{display:grid;grid-template-columns:220px 1fr;}
-}
+/* responsive */
+@media(max-width:900px){.user-grid{grid-template-columns:1fr;}.map-panel{position:static;}#map{height:260px;}.form-row{grid-template-columns:1fr;}.user-grid section,.map-panel{width:100%;}}
+@media(max-width:600px){header{padding:0 4%;gap:10px;}.logo{font-size:1.2rem;gap:8px;}.logo-mark{width:32px;height:32px;}.header-right,.header-actions{gap:8px;}.mobile-menu-btn{display:flex;}.hero{padding:2.4rem 4% 3.5rem;text-align:left;}.hero h1{font-size:1.85rem;line-height:1.1;}.hero p{font-size:.92rem;max-width:28rem;}.search-wrapper{padding:0 4%;margin-top:-22px;}.search-card{flex-direction:column;align-items:stretch;padding:.9rem;}.btn-search{width:100%;justify-content:center;}.quick-searches{padding:.95rem .3rem 0;overflow-x:auto;flex-wrap:nowrap;-ms-overflow-style:none;scrollbar-width:none;}.quick-searches::-webkit-scrollbar{display:none;}.quick-label,.quick-pill{flex:0 0 auto;}.main-content{margin:1.5rem auto;padding:0 4% 2rem;}.results-header{flex-direction:column;align-items:flex-start;gap:8px;}.card-top,.card-actions{flex-direction:column;align-items:stretch;}.card-actions .btn-secondary,.card-actions .btn-add{width:100%;justify-content:center;}.map-panel-header{flex-direction:column;align-items:flex-start;gap:8px;}#map{height:220px;}.sidebar{width:100%;right:-100%;}.mobile-nav-sidebar{width:min(88vw,320px);left:-100%;}.mobile-nav-sidebar.open{left:0;}.modal{max-height:88vh;}.modal-header,.modal-body,.modal-footer{padding-left:1rem;padding-right:1rem;}#toast{left:1rem;right:1rem;bottom:1rem;max-width:none;}}
 </style>
 </head>
 <body>
 
-<div id="loginScreen">
-  <div class="login-card">
-    <div class="login-logo">
-      <div class="login-logo-mark"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></div>
-      <div class="login-logo-name">Makinino<span>Find</span></div>
-    </div>
-    <p class="login-sub">Portal da Farmacia. Acesso Restrito</p>
-    <div id="loginError" class="login-error"></div>
-    <div class="login-field"><label class="login-label">Email</label><input type="email" id="loginEmail" class="login-input" placeholder="admin@suaMakininocia.co.mz" autocomplete="email"/></div>
-    <div class="login-field"><label class="login-label">Palavra-passe</label><input type="password" id="loginPass" class="login-input" placeholder="  " autocomplete="current-password"/></div>
-    <button class="btn-login" id="btnLogin" onclick="doLogin()">Entrar no Portal</button>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;">
-      <a class="btn-recover" href="Makininfind_cadastro_Makinincias.html" style="margin:0;width:auto;padding:0;font-size:.8rem;">Criar Conta</a>
-      <button onclick="openForgotModal()" style="background:none;border:none;cursor:pointer;font-size:.8rem;color:var(--primary);font-family:'Sora',sans-serif;font-weight:600;text-decoration:underline;">Esqueceu a palavra-passe?</button>
-    </div>
-  </div>
-</div>
+<div id="overlay" onclick="closeAllSidebars()"></div>
 
-<div class="modal-overlay" id="forgotModal">
-  <div class="modal" role="dialog" aria-labelledby="forgotTitle" style="max-width:420px;">
-    <div class="modal-header">
-      <h2 id="forgotTitle" style="font-size:.95rem;">Recuperar palavra-passe</h2>
-      <button class="modal-close" onclick="closeForgotModal()">✖</button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:.83rem;color:var(--text-muted);margin-bottom:1.2rem;line-height:1.6;">Introduza o seu email de administrador. Enviaremos um link para redefinir a sua palavra-passe.</p>
-      <div id="forgotSuccess" style="display:none;background:var(--success-light);border:1px solid var(--success);border-radius:var(--radius-sm);padding:12px 14px;font-size:.82rem;color:var(--success);margin-bottom:1rem;">
-        âœ“ Email enviado! Verifique a sua caixa de entrada (e a pasta de spam).
-      </div>
-      <div id="forgotError" style="display:none;background:var(--danger-light);border:1px solid var(--danger);border-radius:var(--radius-sm);padding:10px 14px;font-size:.82rem;color:var(--danger);margin-bottom:1rem;"></div>
-      <div id="forgotForm">
-        <div class="form-group">
-          <label class="form-label">Email da conta</label>
-          <input type="email" id="forgotEmail" class="form-control" placeholder="admin@suafarmacia.co.mz" autocomplete="email"/>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeForgotModal()">Cancelar</button>
-      <button class="btn-primary" id="btnForgot" onclick="sendPasswordReset()">Enviar link</button>
-    </div>
-  </div>
-</div>
-
-<div id="adminApp">
-  <!-- Mobile Top Bar -->
-  <div class="mobile-topbar" id="mobileTopbar" style="display:none">
-    <div class="mobile-topbar-logo">Makinino<span>Find</span></div>
-    <div class="mobile-topbar-right">
-      <button class="btn-hamburger" id="btnHamburger" onclick="toggleSidebar()" aria-label="Menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        <span class="mobile-notif-dot" id="mobileNotifDot"></span>
+<header>
+  <a class="logo" onclick="window.scrollTo(0,0)" title="FarmaFind Home" role="banner">
+    <div class="logo-mark"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></div>
+    Farma<span>Find</span>
+  </a>
+  <nav class="header-right">
+    <div class="header-actions">
+                   <a class="mobile-nav-link" href="#map" onclick="closeSidebar('mobileNavSidebar')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l-6 3V6l6-3 6 3 6-3v15l-6 3-6-3z"/><path d="M9 3v15"/><path d="M15 6v15"/></svg><span>Mapa</span></a>
+      <button class="icon-btn" onclick="openSidebar('ticketsSidebar')" title="As minhas reservas" aria-label="Ver Reservas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+        <span class="icon-badge" id="ticketBadge">0</span>
+      </button>
+      <button class="icon-btn" onclick="openSidebar('cartSidebar')" title="Carrinho" aria-label="Ver Carrinho">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        <span class="icon-badge" id="cartBadge">0</span>
       </button>
     </div>
+  </nav>
+</header>
+
+
+<div class="sidebar" id="cartSidebar">
+  <div class="sidebar-header"><h3>O seu carrinho</h3><button class="sidebar-close" onclick="closeSidebar('cartSidebar')">✕</button></div>
+  <div class="sidebar-body" id="cartBody">
+    <div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>O seu carrinho está vazio.</div>
   </div>
-  <!-- Sidebar Overlay -->
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-  <div class="admin-grid">
-    <!-- Sidebar -->
-    <div class="admin-sidebar" id="adminSidebar">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding:0 8px;">
-        <div class="admin-logo" style="margin-bottom:0">Makinino<span>Find</span></div>
-        <button id="btnCloseSidebar" onclick="closeSidebar()" style="display:none;width:30px;height:30px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);cursor:pointer;color:white;font-size:.9rem;align-items:center;justify-content:center;">✕</button>
-      </div>
-      <div class="admin-profile">
-        <div class="admin-avatar" id="sideAvatar">MF</div>
-        <div><div class="admin-name" id="sideName">Carregando...</div><div class="admin-role" id="sideRole">Portal da Farmacia</div></div>
-      </div>
-      <button class="admin-nav-item active" onclick="adminNav('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
-      <button class="admin-nav-item" onclick="adminNav('stock',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>Gestão de Stock</button>
-      <button class="admin-nav-item" onclick="adminNav('reservas',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>Reservas</button>
-      <div class="admin-nav-divider"></div>
-      <button class="admin-nav-item" onclick="adminNav('notificacoes',this)" id="notifNavBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Notificação<span class="nav-alert-light" id="notifLiveLight"></span><span class="notif-count" id="adminNotifCount" style="display:none">0</span></button>
-      <div class="admin-nav-divider"></div>
-      <button class="admin-nav-item" onclick="adminNav('farmacia',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Minha Farmácia</button>
-      <div class="admin-nav-divider"></div>
-      <button class="btn-logout" onclick="doLogout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Terminar sessão</button>
-    </div>
-
-    <!-- Main -->
-    <div class="admin-main">
-
-      <!-- DASHBOARD -->
-      <div class="admin-section active" id="section-dashboard">
-        <div class="admin-page-title">Dashboard</div>
-        <div class="admin-page-sub" id="dashSub">A carregar...</div>
-        <div class="stats-grid" id="statsGrid">
-          <div class="stat-card"><div class="skeleton" style="height:36px;width:36px;border-radius:9px;margin-bottom:10px"></div><div class="skeleton" style="height:10px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:50%"></div></div>
-          <div class="stat-card"><div class="skeleton" style="height:36px;width:36px;border-radius:9px;margin-bottom:10px"></div><div class="skeleton" style="height:10px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:50%"></div></div>
-          <div class="stat-card"><div class="skeleton" style="height:36px;width:36px;border-radius:9px;margin-bottom:10px"></div><div class="skeleton" style="height:10px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:50%"></div></div>
-          <div class="stat-card"><div class="skeleton" style="height:36px;width:36px;border-radius:9px;margin-bottom:10px"></div><div class="skeleton" style="height:10px;width:80%;margin-bottom:8px"></div><div class="skeleton" style="height:32px;width:50%"></div></div>
-        </div>
-        <div class="dashboard-highlight">
-          <div class="panel hero-panel">
-            <div class="panel-header"><span class="panel-title">Resumo operacional</span></div>
-            <div class="panel-body"><div class="hero-grid" id="dashHeroGrid"></div></div>
-          </div>
-          <div class="panel">
-            <div class="panel-header"><span class="panel-title">Top 10 produtos vendidos</span></div>
-            <div class="panel-body"><div id="topProductsList" class="compact-list"></div></div>
-          </div>
-        </div>
-        <div class="admin-panels">
-          <div class="panel"><div class="panel-header"><span class="panel-title">Reservas da semana</span></div><div class="chart-box"><canvas id="weekChart" height="120"></canvas></div></div>
-          <div class="panel"><div class="panel-header"><span class="panel-title">Alertas de stock</span></div><div id="dashAlerts" style="padding:.5rem 0"></div></div>
-        </div>
-        <div class="insight-grid">
-          <div class="panel">
-            <div class="panel-header"><span class="panel-title">Reservas recentes da semana</span></div>
-            <div class="panel-body weekly-table-wrap">
-              <table class="data-table">
-                <thead><tr><th>Codigo</th><th>Utente</th><th>Itens</th><th>Estado</th><th>Total</th><th>Data</th></tr></thead>
-                <tbody id="weekReservationsBody"></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="panel">
-            <div class="panel-header"><span class="panel-title">Pulso do negocio</span></div>
-            <div class="panel-body"><div id="businessInsights" class="compact-list"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- STOCK -->
-      <div class="admin-section" id="section-stock">
-        <div class="admin-page-title">Gestão de Stock</div>
-        <div class="admin-page-sub">Adicione e actualize medicamentos. Mi­nimo obrigatório: 100 cartelas.</div>
-        <div class="panel" style="margin-bottom:1rem">
-          <div class="panel-header"><span class="panel-title">Medicamentos em Stock</span><button class="btn-add-green" onclick="openStockModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button></div>
-          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Medicamento</th><th>Categoria</th><th>Cartelas</th><th>Ní­vel</th><th>Preço (MT)</th><th>Acções</th></tr></thead><tbody id="stockTableBody"></tbody></table></div>
-        </div>
-      </div>
-
-      <!-- RESERVAS -->
-      <div class="admin-section" id="section-reservas">
-        <div class="admin-page-title">Reservas</div>
-        <div class="admin-page-sub">Gerencie reservas dos utentes. Após pagamento presencial, marque como pago.</div>
-        <div class="panel">
-          <div class="panel-header"><span class="panel-title">Lista de Reservas</span><span class="results-count" id="reservasCount">—</span></div>
-          <div style="overflow-x:auto"><table class="data-table"><thead><tr><th>Código</th><th>Utente</th><th>Medicamentos</th><th>Data</th><th>Total</th><th>Estado</th><th>Receita</th><th>Acção</th></tr></thead><tbody id="reservasTableBody"></tbody></table></div>
-        </div>
-      </div>
-
-      <!-- NOTIFICAÇÕES -->
-      <div class="admin-section" id="section-notificacoes">
-        <div class="admin-page-title">Notificações</div>
-        <div class="admin-page-sub">Alertas automáticos de stock crí­tico — emitidos quando desce abaixo de 100 cartelas.</div>
-        <div class="panel"><div class="panel-header"><span class="panel-title">Alertas recentes</span></div><div id="notifList" style="padding:.5rem 0"></div></div>
-      </div>
-
-      <!-- FARMÁCIA -->
-      <div class="admin-section" id="section-farmacia">
-        <div class="admin-page-title">Minha Farmácia</div>
-        <div class="admin-page-sub">Dados do seu estabelecimento registado na plataforma. Só o número de telefone pode ser alterado.</div>
-
-        <!-- Header Card -->
-        <div class="profile-header-card">
-          <div class="profile-farmacia-name" id="pfNome">A carregar...</div>
-          <div style="display:flex;align-items:center;gap:.75rem;margin-top:.5rem;flex-wrap:wrap;">
-            <span class="profile-farmacia-id" id="pfId">ID: —</span>
-            <span class="profile-status-badge profile-badge-ativo" id="pfStatus"><span class="profile-badge-dot"></span>Ativo</span>
-          </div>
-        </div>
-
-        <!-- Grid de info -->
-        <div class="profile-grid">
-          <!-- Contactos -->
-          <div class="profile-info-card">
-            <div class="profile-info-card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 6.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-              Contactos
-            </div>
-            <div class="profile-field">
-              <div class="profile-field-label">Email</div>
-              <div class="profile-field-value" id="pfEmail">—</div>
-            </div>
-            <div class="profile-field">
-              <div class="profile-field-label">Número de Telefone</div>
-              <div class="profile-field-editable">
-                <input type="tel" class="profile-tel-input" id="pfTelInput" disabled placeholder="+258 8X XXX XXXX"/>
-                <button class="btn-edit-tel" id="btnEditTel" onclick="startEditTel()">Editar</button>
-              </div>
-              <div class="profile-tel-feedback" id="pfTelFeedback"></div>
-            </div>
-          </div>
-
-          <!-- Localização -->
-          <div class="profile-info-card">
-            <div class="profile-info-card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              Localização
-            </div>
-            <div class="profile-field">
-              <div class="profile-field-label">Cidade</div>
-              <div class="profile-field-value" id="pfCidade">—</div>
-            </div>
-            <div class="profile-field">
-              <div class="profile-field-label">Bairro / Endereço</div>
-              <div class="profile-field-value" id="pfBairro">—</div>
-            </div>
-            <div class="profile-field" id="pfGeoField" style="display:none">
-              <div class="profile-field-label">Coordenadas</div>
-              <a class="profile-map-link" id="pfMapLink" href="#" target="_blank">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                Ver no Mapa
-              </a>
-            </div>
-          </div>
-
-          <!-- Registo -->
-          <div class="profile-info-card">
-            <div class="profile-info-card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              Datas de Registo
-            </div>
-            <div class="profile-field">
-              <div class="profile-field-label">Registado em</div>
-              <div class="profile-field-value" id="pfCriadaEm">—</div>
-            </div>
-            <div class="profile-field">
-              <div class="profile-field-label">Última actualização</div>
-              <div class="profile-field-value" id="pfUpdatedAt">—</div>
-            </div>
-          </div>
-
-          <!-- Tipo e Licença -->
-          <div class="profile-info-card">
-            <div class="profile-info-card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-              Licença e Tipo
-            </div>
-            <div class="profile-field">
-              <div class="profile-field-label">Tipo</div>
-              <div class="profile-field-value" id="pfTipo">—</div>
-            </div>
-            <div class="profile-field">
-              <div class="profile-field-label">Licença / Alvará</div>
-              <div class="profile-field-value" id="pfLicenca">—</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Horários (se existirem) -->
-        <div class="profile-full-card" id="pfHorarioCard" style="display:none">
-          <div class="profile-full-card-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Horário de Funcionamento
-          </div>
-          <div class="profile-horario-grid" id="pfHorarioGrid"></div>
-        </div>
-
-        <!-- Aviso readonly -->
-        <div style="background:var(--primary-light);border:1.5px solid var(--primary-mid);border-radius:var(--radius-sm);padding:12px 16px;font-size:.8rem;color:var(--primary-dark);display:flex;align-items:flex-start;gap:8px;">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span>Os dados da farmácia são carregados directamente da base de dados. Apenas o <strong>número de telefone</strong> pode ser editado neste portal. Para alterar outros dados, contacte o suporte Makinino.</span>
-        </div>
-      </div>
-
-    </div><!-- /admin-main -->
-  </div><!-- /admin-grid -->
-</div><!-- /adminApp -->
-
-<!-- STOCK MODAL -->
-<div class="modal-overlay" id="stockModal">
-  <div class="modal">
-    <div class="modal-header"><h2 id="stockModalTitle">Adicionar Medicamento</h2><button class="modal-close" onclick="closeModal('stockModal')">✖</button></div>
-    <div class="modal-body">
-      <div class="form-group"><label class="form-label">Nome do medicamento *</label><input type="text" id="fNome" class="form-control" placeholder="Ex: Amoxicilina 500mg"/></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Categoria *</label><select id="fCat" class="form-control"><option>Antibióticos</option><option>Analgésicos</option><option>Anti-inflamatórios</option><option>Antidiabéticos</option><option>Antiparasitários</option><option>Antimaláricos</option><option>Cardiovascular</option><option>Gastrointestinal</option><option>Vitaminas/Suplementos</option><option>Outro</option></select></div>
-        <div class="form-group"><label class="form-label">Dosagem</label><input type="text" id="fDosagem" class="form-control" placeholder="Ex: 500mg"/></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Cartelas em stock *</label><input type="number" id="fStock" class="form-control" min="0" placeholder="Ex: 300"/><div class="form-hint">Mínimo recomendado: 100</div></div>
-        <div class="form-group"><label class="form-label">Preço por cartela (MT) *</label><input type="number" id="fPreco" class="form-control" min="0" placeholder="Ex: 150"/></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Alerta mí­nimo (cartelas)</label><input type="number" id="fMinimo" class="form-control" value="100" min="100"/><div class="form-hint">Notificação abaixo deste valor</div></div>
-        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:4px"><label style="display:flex;align-items:center;gap:8px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="fReceita" style="width:16px;height:16px;accent-color:var(--primary)"/> Requer receita médica</label></div>
-      </div>
-      <div id="stockModalError" style="display:none;background:var(--danger-light);border:1px solid var(--danger);border-radius:8px;padding:9px 13px;font-size:.8rem;color:var(--danger);margin-top:.5rem"></div>
-    </div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal('stockModal')">Cancelar</button><button class="btn-primary" id="btnSaveStock" onclick="saveStock()">Guardar</button></div>
+  <div class="sidebar-footer" id="cartFooter">
+    <div class="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">0 MT</span></div>
+    <div class="cart-total-row"><span>Total</span><span id="cartTotal">0 MT</span></div>
+    <button class="btn-checkout" onclick="openCheckoutModal()">Finalizar Reserva →</button>
   </div>
 </div>
 
-<!-- RECEITA MODAL -->
-<div class="modal-overlay" id="receitaModal">
-  <div class="modal" style="max-width:460px">
-    <div class="modal-header"><h2>Receita Médica</h2><button class="modal-close" onclick="closeModal('receitaModal')">✖</button></div>
+<div class="sidebar" id="ticketsSidebar">
+  <div class="sidebar-header"><h3>As minhas reservas</h3><button class="sidebar-close" onclick="closeSidebar('ticketsSidebar')">✕</button></div>
+  <div class="sidebar-body" id="ticketsBody">
+    <div class="cart-empty" id="ticketsEmpty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/></svg>Ainda não tem reservas.</div>
+  </div>
+  <div class="sidebar-footer">Apresente o código na farmácia para levantar o pedido.</div>
+</div>
+
+<main>
+    <section class="hero" id="heroSection">
+      <h1>O que precisa hoje?</h1>
+      <p>Localize medicamentos, compare preços e reserve — grátis.</p>
+    </section>
+
+    <div class="search-wrapper" id="searchSection">
+      <div class="search-card" role="search">
+        <div class="search-field-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input class="search-input" id="medSearch" type="text" placeholder="Ex: Paracetamol, Amoxicilina 500mg..." autocomplete="off" aria-label="Pesquisar medicamento"/>
+          <div id="suggestionsBox" class="suggestions-box"></div>
+        </div>
+        <button class="btn-search" onclick="performSearch()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          Pesquisar
+        </button>
+      </div>
+      <div class="quick-searches">
+        <span class="quick-label">Populares:</span>
+        <button class="quick-pill" onclick="quickSearch('Paracetamol')">Paracetamol</button>
+        <button class="quick-pill" onclick="quickSearch('Amoxicilina')">Amoxicilina</button>
+        <button class="quick-pill" onclick="quickSearch('Ibuprofeno')">Ibuprofeno</button>
+        <button class="quick-pill" onclick="quickSearch('Omeprazol')">Omeprazol</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="user-grid">
+        <section aria-labelledby="resultsTitle" id="resultsSection">
+          <div class="results-header" id="resultsHeader">
+            <h2 class="results-title" id="resultsTitle">Resultados</h2>
+            <span class="results-count" id="resultsCount">0 farmácias</span>
+          </div>
+          <div id="resultsList">
+            <div class="empty-state"><div class="empty-state-icon">🔍</div><h3>Procure um medicamento</h3><p>Usamos a sua localização para mostrar as farmácias mais próximas com stock disponível.</p></div>
+          </div>
+        </section>
+
+        <aside class="map-panel" aria-label="Localização das Farmácias">
+          <div class="map-panel-header">
+            <div class="map-panel-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="11" r="3"/><path d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>Mapa de farmácias</div>
+            <div class="map-legend">
+                <span><span class="legend-dot"></span>Alto</span>
+                <span><span class="legend-dot"></span>Médio</span>
+                <span><span class="legend-dot"></span>Crítico</span>
+            </div>
+          </div>
+          <div id="map"></div>
+          <div class="map-footer">Clique num marcador para ver detalhes · <strong>Google Maps</strong> para navegar</div>
+        </aside>
+      </div>
+    </div>
+</main>
+
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal" role="dialog" aria-labelledby="checkoutTitle">
+    <div class="modal-header"><h2 id="checkoutTitle">Confirmar Reserva</h2><button class="modal-close" onclick="closeModal('checkoutModal')">✕</button></div>
     <div class="modal-body">
-      <div id="receitaContent" class="receita-viewer"><p style="color:var(--text-muted);font-size:.85rem">A carregar receita...</p></div>
+      <div class="info-banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>A reserva é <strong>gratuita</strong>. Dirija-se à farmácia com a prescrição médica e efectue o pagamento no local.</div>
+      <div class="checkout-items" id="checkoutItemsBox"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="custName">Nome completo *</label><input type="text" id="custName" class="form-control" placeholder="João Machava"/></div>
+        <div class="form-group"><label class="form-label" for="custTel">Telefone (WhatsApp) *</label><input type="tel" id="custTel" class="form-control" placeholder="841234567"/></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Foto da receita médica</label>
+        <div class="file-upload-box" id="fileUploadBox" onclick="document.getElementById('receitaInput').click()">📷 Clique para anexar a foto da receita</div>
+        <input type="file" id="receitaInput" accept="image/*,application/pdf" onchange="handleFileSelect(this)"/>
+        <div class="form-hint">Formatos: JPG, PNG, WebP, PDF · Máx. 5MB</div>
+      </div>
+      <div id="checkoutError" class="api-error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><span id="checkoutErrorMsg"></span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('checkoutModal')">Cancelar</button>
+      <button class="btn-primary" id="btnConfirm" onclick="confirmReserve()">Confirmar Reserva</button>
     </div>
   </div>
 </div>
 
-<div id="toast"><svg id="toastIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+<div id="toast" role="alert"><svg id="toastIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
 
 <script>
-// ============================================================
-//  CONFIG
-// ============================================================
-let SUPABASE_URL = '';
-let SUPABASE_KEY = '';
-let supabaseClient = null;
-let supabaseClientReady = null;
-
-async function loadSupabaseConfig() {
-  if (supabaseClient) return supabaseClient;
-  const res = await fetch('/config');
-  if (!res.ok) throw new Error('Não foi possível carregar a configuração do Supabase.');
-  const cfg = await res.json();
-  SUPABASE_URL = cfg.supabaseUrl;
-  SUPABASE_KEY = cfg.supabaseAnonKey;
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  return supabaseClient;
-}
-
-// Promise que aguarda a config estar pronta
-supabaseClientReady = loadSupabaseConfig().catch(err => {
-  console.error('Erro ao carregar config do Supabase:', err);
-  return null;
-});
-
+// CONFIG
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000/api/v1'
   : `${window.location.origin}/api/v1`;
 
-// ============================================================
-//  ESTADO
-// ============================================================
-let currentUser   = null;
-let currentToken  = null;
-let weekChart     = null;
-let editingMedId  = null;
-let realtimeChannel = null;
-let currentFarmaciaId = null;
-let reservationAlertCount = 0;
-let latestDashboard = null;
-let latestReservas = [];
+let USER_LAT = -25.969;
+let USER_LNG =  32.573;
 
-function formatMoney(value) {
-  return Number(value || 0).toLocaleString('pt-MZ');
-}
-
-function updateReservationAlertUI() {
-  const navBtn = document.getElementById('notifNavBtn');
-  const liveLight = document.getElementById('notifLiveLight');
-  const badge = document.getElementById('adminNotifCount');
-  const mobileDot = document.getElementById('mobileNotifDot');
-  const stockAlerts = latestDashboard ? Number(latestDashboard.stock_critico || 0) : 0;
-  const total = stockAlerts + reservationAlertCount;
-
-  badge.textContent = total;
-  badge.style.display = total ? 'inline-block' : 'none';
-  navBtn.classList.toggle('has-live-alert', reservationAlertCount > 0);
-  liveLight.classList.toggle('is-on', reservationAlertCount > 0);
-  if (mobileDot) mobileDot.style.display = total ? 'block' : 'none';
-}
-
-// ============================================================
-//  AUTH
-// ============================================================
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPass').value;
-  const btn   = document.getElementById('btnLogin');
-  const errEl = document.getElementById('loginError');
-  errEl.style.display = 'none';
-  if (!email || !pass)
-   { 
-    showLoginError('Preencha o email e a palavra-passe.');
-    return;
-   }
-  btn.disabled = true; btn.textContent = 'A entrar...';
-  try {
-    await supabaseClientReady;
-    if (!supabaseClient) throw new Error('Supabase não foi inicializado.');
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
-    if (error) throw error;
-    currentUser  = data.user;
-    currentToken = data.session.access_token;
-    await initAdmin();
-  } catch (err) {
-    showLoginError(err.message || 'Email ou palavra-passe incorrectos.');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Entrar no Portal';
-  }
-}
-document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-
-async function doLogout() {
-  await supabaseClientReady;
-  if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
-  await supabaseClient.auth.signOut();
-  currentUser = null; currentToken = null;
-  currentFarmaciaId = null;
-  reservationAlertCount = 0;
-  latestDashboard = null;
-  latestReservas = [];
-  document.getElementById('adminApp').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-  updateReservationAlertUI();
-  showToast('Sessão terminada.');
-}
-
-function showLoginError(msg) {
-  const el = document.getElementById('loginError');
-  el.textContent = msg; el.style.display = 'block';
-}
-
-// ============================================================
-//  RECUPERAR PALAVRA-PASSE
-// ============================================================
-function openForgotModal() {
-  document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value || '';
-  document.getElementById('forgotError').style.display = 'none';
-  document.getElementById('forgotSuccess').style.display = 'none';
-  document.getElementById('forgotForm').style.display = 'block';
-  document.getElementById('btnForgot').style.display = 'block';
-  document.getElementById('forgotModal').classList.add('open');
-}
-
-function closeForgotModal() {
-  document.getElementById('forgotModal').classList.remove('open');
-}
-
-async function sendPasswordReset() {
-  const email = document.getElementById('forgotEmail').value.trim();
-  const errEl = document.getElementById('forgotError');
-  const sucEl = document.getElementById('forgotSuccess');
-  errEl.style.display = 'none';
-  sucEl.style.display = 'none';
-
-  if (!email || !email.includes('@')) {
-    errEl.textContent = 'Introduza um email válido.';
-    errEl.style.display = 'block';
-    return;
-  }
-
-  const btn = document.getElementById('btnForgot');
-  btn.disabled = true; btn.textContent = 'A enviar...';
-
-  try {
-    await supabaseClientReady;
-    if (!supabaseClient) throw new Error('Supabase não inicializado. Tente recarregar a página.');
-
-    // Determinar URL de redireccionamento correcto (produ°§°£o ou local)
-    const redirectTo = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? `http://localhost:3000/reset-password.html`
-      : `${window.location.origin}/reset-password.html`;
-
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo,
-    });
-
-    if (error) throw error;
-
-    // Mostrar sucesso e esconder formulário
-    sucEl.style.display = 'block';
-    document.getElementById('forgotForm').style.display = 'none';
-    btn.style.display = 'none';
-  } catch (err) {
-    errEl.textContent = err.message || 'Erro ao enviar email. Verifique o endereço.';
-    errEl.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    if (btn.style.display !== 'none') btn.textContent = 'Enviar link';
-  }
-}
-
-
-window.addEventListener('load', async () => {
-  await supabaseClientReady;
-  if (!supabaseClient) {
-    console.error('Supabase não foi inicializado.');
-    return;
-  }
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session) {
-    currentUser  = session.user;
-    currentToken = session.access_token;
-    await initAdmin();
-  }
-});
-
-// ============================================================
-
-// ============================================================
-async function initAdmin() {
-  try {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminApp').style.display = 'block';
-    initMobileUI();
-    // Preencher perfil sidebar
-    const email = currentUser.email || '';
-    document.getElementById('sideAvatar').textContent = email.substring(0,2).toUpperCase();
-    document.getElementById('sideName').textContent   = email.split('@')[0] || 'Administrador';
-    document.getElementById('dashSub').textContent    = `Bem-vindo, ${email} — ${new Date().toLocaleDateString('pt-MZ', {weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
-    // Carregar dados
-    await Promise.all([loadDashboard(), loadStock(), loadReservas()]);
-    subscribeToReservas();
-  } catch (err) {
-    console.error('Erro ao inicializar admin:', err);
-    showToast('Erro ao carregar portal: ' + err.message, 'error');
-    // Voltar ao login se houver erro
-    document.getElementById('adminApp').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
-  }
-}
-
-// ============================================================
-//  API HELPER com JWT
-// ============================================================
-async function apiCall(path, options = {}) {
-  const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}`, ...(options.headers || {}) };
-  const res  = await fetch(`${API_BASE}/farmacia${path}`, { ...options, headers });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-  return data;
-}
-
-// ============================================================
-//  REALTIME — Supabase Realtime para novas reservas
-// ============================================================
-function subscribeToReservas() {
-  if (!supabaseClient) return; // Aguardar inicializa°§°£o
-  realtimeChannel = supabaseClient
-    .channel('reservas-changes')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reservas' }, payload => {
-      if (currentFarmaciaId && payload.new.farmacia_id !== currentFarmaciaId) return;
-      reservationAlertCount += 1;
-      updateReservationAlertUI();
-      showToast(`Nova reserva recebida: ${payload.new.codigo}`, 'success');
-      loadReservas();
-      loadDashboard();
-    })
-    .subscribe();
-}
-
-// ============================================================
-//  DASHBOARD
-// ============================================================
-async function loadDashboard() {
-  try {
-    const data = await apiCall('/dashboard');
-    const d = data.dashboard;
-    latestDashboard = d;
-    currentFarmaciaId = d.farmacia_id || currentFarmaciaId;
-    document.getElementById('statsGrid').innerHTML = `
-      <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg></div><div class="stat-label">Reservas Hoje</div><div class="stat-value">${d.reservas_hoje}</div><div class="stat-sub" style="color:var(--warning)">${d.pendentes} pendentes</div></div>
-      <div class="stat-card"><div class="stat-icon" style="background:var(--success-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-label">Pagamentos</div><div class="stat-value">${d.pagas}</div><div class="stat-sub" style="color:var(--success)">${formatMoney(d.total_mt_hoje)} MT hoje</div></div>
-      <div class="stat-card"><div class="stat-icon" style="background:var(--primary-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/></svg></div><div class="stat-label">Medicamentos</div><div class="stat-value">${d.total_medicamentos}</div><div class="stat-sub" style="color:var(--text-muted)">em stock</div></div>
-      <div class="stat-card"><div class="stat-icon" style="background:var(--danger-light)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="stat-label">Stock Critico</div><div class="stat-value">${d.stock_critico}</div><div class="stat-sub" style="color:var(--danger)">${d.stock_baixo || 0} em atencao</div></div>`;
-    document.getElementById('dashHeroGrid').innerHTML = `
-      <div class="hero-kpi"><div class="hero-kpi-label">Reservas na semana</div><div class="hero-kpi-value">${d.reservas_semana || 0}</div><div class="hero-kpi-sub">movimento real dos ultimos 7 dias</div></div>
-      <div class="hero-kpi"><div class="hero-kpi-label">Faturacao da semana</div><div class="hero-kpi-value">${formatMoney(d.faturacao_semana)} MT</div><div class="hero-kpi-sub">somente pedidos pagos</div></div>
-      <div class="hero-kpi"><div class="hero-kpi-label">Fila activa</div><div class="hero-kpi-value">${d.pendentes || 0}</div><div class="hero-kpi-sub">levantamentos ainda pendentes hoje</div></div>`;
-    renderTopProducts(d.top_produtos || []);
-    renderWeekReservations(d.reservas_recentes_semana || []);
-    renderBusinessInsights(d);
-    // Alertas
-    const alertsEl = document.getElementById('dashAlerts');
-    if (!d.alertas || !d.alertas.length) {
-      alertsEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text" style="color:var(--success)">Sem alertas críticos.</div></div>`;
-    } else {
-      alertsEl.innerHTML = d.alertas.map(a => `<div class="notif-item"><div class="notif-dot ${a.stock_nivel==='critico'?'dot-danger':'dot-warning'}"></div><div><div class="notif-text"><strong>${a.nome}</strong> ${a.dosagem||''} — ${a.stock_atual}/${a.stock_minimo} cartelas</div><div class="notif-time">Reabastecimento necessário</div></div></div>`).join('');
-    }
-    // Badge notifica°§°µes
-    updateReservationAlertUI();
-    renderWeekChart(d.week_series || []);
-  } catch (err) { showToast('Erro ao carregar dashboard: ' + err.message, 'error'); }
-}
-
-function renderWeekChart(series) {
-  const ctx = document.getElementById('weekChart');
-  if (!ctx) return;
-  if (weekChart) { weekChart.destroy(); }
-  weekChart = new Chart(ctx.getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: series.map(item => item.label),
-      datasets: [
-        { label: 'Reservas', data: series.map(item => item.reservas), borderColor: '#007A5E', backgroundColor: 'rgba(0,122,94,.08)', tension: 0.4, fill: true, pointBackgroundColor: '#007A5E', pointRadius: 4 },
-        { label: 'Pagas', data: series.map(item => item.pagos), borderColor: '#E67E22', backgroundColor: 'rgba(230,126,34,.08)', tension: 0.35, fill: false, pointBackgroundColor: '#E67E22', pointRadius: 3 }
-      ]
+function getLocation() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      USER_LAT = pos.coords.latitude;
+      USER_LNG = pos.coords.longitude;
+      if (userMarker) userMarker.setLatLng([USER_LAT, USER_LNG]);
     },
-    options: { responsive: true, plugins: { legend: { display: true, position: 'bottom' } }, scales: { y: { beginAtZero: true, grid: { color: '#F0F4F8' }, ticks: { font: { size: 11 }, precision: 0 } }, x: { grid: { display: false }, ticks: { font: { size: 11 } } } } }
-  });
+    () => {}, 
+    { timeout: 5000 }
+  );
 }
 
-function renderTopProducts(produtos) {
-  const el = document.getElementById('topProductsList');
-  if (!produtos.length) {
-    el.innerHTML = `<div class="empty-inline">Ainda nao ha vendas suficientes para formar o top 10.</div>`;
-    return;
-  }
-  el.innerHTML = produtos.map((produto, index) => `
-    <div class="compact-row">
-      <div class="compact-row-main">
-        <div class="compact-row-title">${produto.nome}</div>
-        <div class="compact-row-sub">${produto.unidades_vendidas} cartela${produto.unidades_vendidas !== 1 ? 's' : ''} vendida${produto.unidades_vendidas !== 1 ? 's' : ''}</div>
-      </div>
-      <div class="compact-row-meta">
-        <div class="compact-row-rank">#${index + 1}</div>
-        <div class="compact-row-sub">${formatMoney(produto.receita_total)} MT</div>
-      </div>
-    </div>`).join('');
-}
+let cart = [], cartPhId = null, cartPhName = '';
+let userTickets = [];
+let leafletMap = null, mapMarkers = [], userMarker = null;
+let receitaFile = null;
 
-function renderWeekReservations(reservas) {
-  const tbody = document.getElementById('weekReservationsBody');
-  if (!reservas.length) {
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:1.5rem">Nenhuma reserva nesta semana.</td></tr>`;
-    return;
-  }
-  tbody.innerHTML = reservas.map((reserva) => `
-    <tr>
-      <td><code style="font-size:.75rem;font-weight:800;color:var(--primary);background:var(--primary-light);padding:2px 7px;border-radius:4px">${reserva.codigo}</code></td>
-      <td><strong>${reserva.cliente_nome}</strong><br><span style="font-size:.72rem;color:var(--text-muted)">${reserva.cliente_tel || 'Sem telefone'}</span></td>
-      <td style="max-width:190px;font-size:.76rem">${reserva.itens_resumo || 'Sem itens'}</td>
-      <td><span class="status-badge badge-${reserva.status}">${statusLabel(reserva.status)}</span></td>
-      <td style="font-weight:700">${formatMoney(reserva.total_mt)} MT</td>
-      <td style="white-space:nowrap">${new Date(reserva.criada_em).toLocaleString('pt-MZ')}</td>
-    </tr>`).join('');
-}
-
-function renderBusinessInsights(d) {
-  const el = document.getElementById('businessInsights');
-  const mediaDiaria = Math.round(Number(d.faturacao_semana || 0) / 7);
-  const melhorDia = (d.week_series || []).reduce((best, day) => (!best || day.reservas > best.reservas ? day : best), null);
-  const items = [
-    { title: 'Fluxo desta semana', sub: `${d.reservas_semana || 0} reservas chegaram nos ultimos 7 dias`, value: `${formatMoney(mediaDiaria)} MT/dia` },
-    { title: 'Melhor dia', sub: melhorDia ? `${melhorDia.label}: ${melhorDia.reservas} reservas` : 'Sem movimento registado esta semana', value: melhorDia ? `${formatMoney(melhorDia.total_mt)} MT` : '0 MT' },
-    { title: 'Pressao no stock', sub: `${d.stock_critico || 0} criticos e ${d.stock_baixo || 0} em atencao`, value: `${d.total_medicamentos || 0} produtos activos` }
-  ];
-  el.innerHTML = items.map((item) => `
-    <div class="compact-row">
-      <div class="compact-row-main">
-        <div class="compact-row-title">${item.title}</div>
-        <div class="compact-row-sub">${item.sub}</div>
-      </div>
-      <div class="compact-row-meta"><div class="compact-row-value">${item.value}</div></div>
-    </div>`).join('');
-}
-
-// ============================================================
-//  STOCK
-// ============================================================
-async function loadStock() {
-  try {
-    const data = await apiCall('/medicamentos');
-    renderStockTable(data.medicamentos || []);
-  } catch (err) { document.getElementById('stockTableBody').innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:1.5rem">Erro ao carregar stock: ${err.message}</td></tr>`; }
-}
-
-function renderStockTable(meds) {
-  const tbody = document.getElementById('stockTableBody');
-  if (!meds.length) { tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:2rem">Nenhum medicamento cadastrado.</td></tr>`; return; }
-  tbody.innerHTML = meds.map(m => {
-    const pct   = Math.min(100, (m.stock_atual / (m.stock_minimo * 3)) * 100);
-    const color = m.stock_nivel === 'critico' ? '#DC3545' : m.stock_nivel === 'baixo' ? '#E67E22' : '#198754';
-    return `<tr>
-      <td><strong>${m.nome}</strong>${m.dosagem ? ` <span style="font-size:.72rem;color:var(--text-muted)">${m.dosagem}</span>` : ''}</td>
-      <td><span class="status-badge" style="background:var(--primary-light);color:var(--primary)">${m.categoria}</span></td>
-      <td>${m.stock_atual} <small style="color:var(--text-muted)">/ mín ${m.stock_minimo}</small></td>
-      <td><div class="mini-bar-wrap"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${pct.toFixed(0)}%;background:${color}"></div></div><span style="font-size:.7rem;color:var(--text-muted);min-width:28px">${pct.toFixed(0)}%</span></div></td>
-      <td>${Number(m.preco_mt).toLocaleString()} MT</td>
-      <td style="display:flex;gap:6px">
-        <button class="btn-icon" onclick='openEditStock(${JSON.stringify(m).replace(/'/g,"\\'")})'title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="btn-icon danger" onclick="deleteMed('${m.id}','${m.nome.replace(/'/g,"\\'")}')" title="Remover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function openStockModal() {
-  editingMedId = null;
-  document.getElementById('stockModalTitle').textContent = 'Adicionar Medicamento';
-  document.getElementById('fNome').value = ''; document.getElementById('fNome').disabled = false;
-  document.getElementById('fCat').value = 'Antibióticos';
-  document.getElementById('fDosagem').value = ''; document.getElementById('fStock').value = '';
-  document.getElementById('fPreco').value = ''; document.getElementById('fMinimo').value = '100';
-  document.getElementById('fReceita').checked = false;
-  document.getElementById('stockModalError').style.display = 'none';
-  openModal('stockModal');
-}
-function openEditStock(med) {
-  editingMedId = med.id;
-  document.getElementById('stockModalTitle').textContent = 'Editar: ' + med.nome;
-  document.getElementById('fNome').value = med.nome; document.getElementById('fNome').disabled = true;
-  document.getElementById('fCat').value = med.categoria;
-  document.getElementById('fDosagem').value = med.dosagem || '';
-  document.getElementById('fStock').value = med.stock_atual;
-  document.getElementById('fPreco').value = med.preco_mt;
-  document.getElementById('fMinimo').value = med.stock_minimo;
-  document.getElementById('fReceita').checked = med.requer_receita;
-  document.getElementById('stockModalError').style.display = 'none';
-  openModal('stockModal');
-}
-
-async function saveStock() {
-  const payload = {
-    nome: document.getElementById('fNome').value.trim(),
-    categoria: document.getElementById('fCat').value,
-    dosagem: document.getElementById('fDosagem').value.trim() || null,
-    stock_atual: parseInt(document.getElementById('fStock').value),
-    preco_mt: parseFloat(document.getElementById('fPreco').value),
-    stock_minimo: parseInt(document.getElementById('fMinimo').value) || 100,
-    requer_receita: document.getElementById('fReceita').checked,
-  };
-  if (!payload.nome) { showStockError('Insira o nome do medicamento.'); return; }
-  if (isNaN(payload.stock_atual) || isNaN(payload.preco_mt)) { showStockError('Preencha quantidade e preço.'); return; }
-  if (payload.stock_minimo < 100)
-   { 
-    showStockError('O mínimoão pode ser inferior a 100 cartelas.');
-   return;
-   }
-  const btn = document.getElementById('btnSaveStock');
-  btn.disabled = true; btn.textContent = 'A guardar...';
-  try {
-    if (editingMedId) { await apiCall(`/medicamentos/${editingMedId}`, { method: 'PATCH', body: JSON.stringify(payload) }); }
-    else              { await apiCall('/medicamentos', { method: 'POST', body: JSON.stringify(payload) }); }
-    closeModal('stockModal');
-    await loadStock();
-    await loadDashboard();
-    showToast(editingMedId ? 'Stock actualizado!' : 'Medicamento adicionado!', 'success');
-  } catch (err) { showStockError(err.message); }
-  finally { btn.disabled = false; btn.textContent = 'Guardar'; }
-}
-
-async function deleteMed(id, nome) {
-  if (!confirm(`Remover "${nome}" do stock?`)) return;
-  try {
-    await apiCall(`/medicamentos/${id}`, { method: 'DELETE' });
-    await loadStock(); await loadDashboard();
-    showToast(`"${nome}" removido.`);
-  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
-}
-
-function showStockError(msg) {
-  const el = document.getElementById('stockModalError');
-  el.textContent = msg; el.style.display = 'block';
-}
-
-// ============================================================
-//  RESERVAS
-// ============================================================
-async function loadReservas() {
-  try {
-    const data = await apiCall('/reservas');
-    const reservas = data.reservas || [];
-    latestReservas = reservas;
-    document.getElementById('reservasCount').textContent = `${reservas.length} reserva${reservas.length !== 1 ? 's' : ''}`;
-    renderReservasTable(reservas);
-    renderNotificacoes(reservas);
-  } catch (err) { document.getElementById('reservasTableBody').innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--danger);padding:1.5rem">Erro: ${err.message}</td></tr>`; }
-}
-
-function renderReservasTable(reservas) {
-  const tbody = document.getElementById('reservasTableBody');
-  if (!reservas.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem">Nenhuma reserva ainda.</td></tr>`; return; }
-  tbody.innerHTML = reservas.map(r => {
-    const items   = Array.isArray(r.itens) ? r.itens : [];
-    const itemStr = items.map(i => `${i.qty}— ${i.nome}`).join(', ');
-    const total   = Number(r.total_mt);
-    return `<tr>
-      <td><code style="font-size:.78rem;font-weight:800;color:var(--primary);background:var(--primary-light);padding:2px 7px;border-radius:4px">${r.codigo}</code></td>
-      <td><strong>${r.cliente_nome}</strong><br><span style="font-size:.72rem;color:var(--text-muted)">${r.cliente_tel}</span></td>
-      <td style="max-width:180px;font-size:.78rem">${itemStr}</td>
-      <td style="font-size:.78rem;white-space:nowrap">${new Date(r.criada_em).toLocaleString('pt-MZ')}</td>
-      <td style="font-weight:700">${total.toLocaleString()} MT</td>
-      <td><span class="status-badge badge-${r.status}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
-      <td>${r.receita_path ? `<button class="btn-icon" onclick="verReceita('${r.id}')" title="Ver receita"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>` : '<span style="color:var(--text-light);font-size:.75rem">—</span>'}</td>
-      <td>${r.status === 'pendente' ? `<button class="btn-mark-paid" onclick="marcarPago('${r.id}')">Marcar Pago</button>` : '—'}</td>
-    </tr>`;
-  }).join('');
-}
-
-async function marcarPago(id) {
-  if (!confirm('Confirmar recebimento do pagamento e abater stock?')) return;
-  try {
-    await apiCall(`/reservas/${id}/pagar`, { method: 'PATCH' });
-    await loadReservas();
-    await loadDashboard();
-    await loadStock();
-    showToast('Pagamento registado e stock abatido!', 'success');
-  } catch (err) { showToast('Erro: ' + err.message, 'error'); }
-}
-
-async function verReceita(id) {
-  openModal('receitaModal');
-  document.getElementById('receitaContent').innerHTML = '<p style="color:var(--text-muted);font-size:.85rem">A carregar receita...</p>';
-  try {
-    const data = await apiCall(`/reservas/${id}/receita`);
-    const ext  = data.url?.split('.').pop()?.toLowerCase();
-    if (ext === 'pdf') {
-      document.getElementById('receitaContent').innerHTML = `<p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem">Receita em formato PDF:</p><a class="receita-url-link" href="${data.url}" target="_blank"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Abrir PDF da Receita</a><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">Válido por 15 minutos.</p>`;
-    } else {
-      document.getElementById('receitaContent').innerHTML = `<img src="${data.url}" alt="Receita médica" onerror="this.outerHTML='<p style=color:var(--danger)>Erro ao carregar imagem.</p>'"/><p style="font-size:.72rem;color:var(--text-muted);margin-top:.5rem">Válido por 15 minutos.</p>`;
-    }
-  } catch (err) { document.getElementById('receitaContent').innerHTML = `<p style="color:var(--danger);font-size:.85rem">Erro: ${err.message}</p>`; }
-}
-
-// ============================================================
-//  NOTIFICAÇÕES
-// ============================================================
-function renderNotificacoes(reservas) {
-  const pendentes = reservas.filter(r => r.status === 'pendente').length;
-  const notifEl   = document.getElementById('notifList');
-  const items = [];
-  if (reservationAlertCount) items.push({ type: 'warning', text: `${reservationAlertCount} nova${reservationAlertCount > 1 ? 's' : ''} reserva${reservationAlertCount > 1 ? 's' : ''} acabou de entrar pelo site.`, time: 'Em tempo real' });
-  if (pendentes) items.push({ type: 'warning', text: `${pendentes} reserva${pendentes>1?'s':''} pendente${pendentes>1?'s':''} aguardam levantamento.`, time: 'Agora' });
-  if (!items.length) { notifEl.innerHTML = `<div class="notif-item"><div class="notif-dot dot-success"></div><div class="notif-text">Nenhuma notificação pendente.</div></div>`; return; }
-  notifEl.innerHTML = items.map(it => `<div class="notif-item"><div class="notif-dot dot-${it.type}"></div><div><div class="notif-text">${it.text}</div><div class="notif-time">${it.time}</div></div></div>`).join('');
-}
-
-// ============================================================
-//  NAV / MODAL HELPERS
-// ============================================================
-function adminNav(section, el) {
-  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('section-' + section).classList.add('active');
-  el.classList.add('active');
-  if (section === 'notificacoes') {
-    reservationAlertCount = 0;
-    updateReservationAlertUI();
-    renderNotificacoes(latestReservas);
-  }
-  if (section === 'reservas') loadReservas();
-  if (section === 'stock')    loadStock();
-  if (section === 'farmacia') loadFarmaciaProfile();
-  // Fechar sidebar no mobile após navegar
-  closeSidebar();
-}
-
-// ============================================================
-//  SIDEBAR MOBILE
-// ============================================================
-function toggleSidebar() {
-  const sidebar = document.getElementById('adminSidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const closeBtn = document.getElementById('btnCloseSidebar');
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('open');
-  closeBtn.style.display = sidebar.classList.contains('open') ? 'flex' : 'none';
-}
-function closeSidebar() {
-  const sidebar = document.getElementById('adminSidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const closeBtn = document.getElementById('btnCloseSidebar');
-  sidebar.classList.remove('open');
-  overlay.classList.remove('open');
-  closeBtn.style.display = 'none';
-}
-function initMobileUI() {
-  const topbar = document.getElementById('mobileTopbar');
-  if (window.innerWidth <= 768) {
-    topbar.style.display = 'flex';
-  } else {
-    topbar.style.display = 'none';
-    closeSidebar();
-  }
-}
-window.addEventListener('resize', initMobileUI);
-
-// ============================================================
-//  FARMÁCIA PROFILE
-// ============================================================
-let farmaciaData = null;
-
-async function loadFarmaciaProfile() {
-  try {
-    const data = await apiCall('/perfil');
-    farmaciaData = data.farmacia || data;
-    renderFarmaciaProfile(farmaciaData);
-  } catch (err) {
-    // Tentar carregar do dashboard se existir
-    if (latestDashboard && latestDashboard.farmacia) {
-      farmaciaData = latestDashboard.farmacia;
-      renderFarmaciaProfile(farmaciaData);
-    } else {
-      showToast('Erro ao carregar perfil: ' + err.message, 'error');
-    }
-  }
-}
-
-function renderFarmaciaProfile(f) {
-  if (!f) return;
-  // Header
-  document.getElementById('pfNome').textContent = f.nome || 'Farmácia';
-  document.getElementById('pfId').textContent = 'ID: ' + (f.id ? f.id.toString().substring(0,8).toUpperCase() : '—');
-  // Contactos
-  document.getElementById('pfEmail').textContent = f.email || currentUser?.email || '—';
-  document.getElementById('pfTelInput').value = f.telefone || f.tel || f.contacto || '';
-  // Localização
-  document.getElementById('pfCidade').textContent = f.cidade || f.municipio || '—';
-  document.getElementById('pfBairro').textContent = f.bairro || f.endereco || f.morada || '—';
-  if (f.latitude && f.longitude) {
-    document.getElementById('pfGeoField').style.display = 'block';
-    document.getElementById('pfMapLink').href = `https://maps.google.com/?q=${f.latitude},${f.longitude}`;
-  }
-  // Datas
-  document.getElementById('pfCriadaEm').textContent = f.criada_em || f.created_at ? new Date(f.criada_em || f.created_at).toLocaleDateString('pt-MZ', {year:'numeric',month:'long',day:'numeric'}) : '—';
-  document.getElementById('pfUpdatedAt').textContent = f.updated_at ? new Date(f.updated_at).toLocaleDateString('pt-MZ', {year:'numeric',month:'long',day:'numeric'}) : '—';
-  // Tipo e licença
-  document.getElementById('pfTipo').textContent = f.tipo || f.categoria || 'Farmácia';
-  document.getElementById('pfLicenca').textContent = f.licenca || f.alvara || f.numero_licenca || '—';
-  // Horário
-  const horario = f.horario || f.horarios;
-  if (horario) {
-    renderHorario(horario);
-    document.getElementById('pfHorarioCard').style.display = 'block';
-  }
-}
-
-function renderHorario(horario) {
-  const dias = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
-  const keys = ['segunda','terca','quarta','quinta','sexta','sabado','domingo'];
-  let html = '';
-  if (typeof horario === 'object' && !Array.isArray(horario)) {
-    keys.forEach((key, i) => {
-      const val = horario[key] || horario[dias[i]] || horario[dias[i].toLowerCase()];
-      html += `<div class="profile-horario-item"><div class="profile-horario-dia">${dias[i]}</div><div class="profile-horario-hora ${!val || val === 'fechado' ? 'profile-horario-fechado' : ''}">${val || 'Fechado'}</div></div>`;
-    });
-  }
-  document.getElementById('pfHorarioGrid').innerHTML = html || '<p style="font-size:.8rem;color:var(--text-muted)">Sem horário registado.</p>';
-}
-
-function startEditTel() {
-  const input = document.getElementById('pfTelInput');
-  const btn   = document.getElementById('btnEditTel');
-  input.disabled = false;
-  input.focus();
-  btn.textContent = 'Guardar';
-  btn.className = 'btn-save-tel';
-  btn.onclick = saveTel;
-}
-
-async function saveTel() {
-  const input   = document.getElementById('pfTelInput');
-  const btn     = document.getElementById('btnEditTel');
-  const fb      = document.getElementById('pfTelFeedback');
-  const newTel  = input.value.trim();
-  if (!newTel) {
-    fb.textContent = 'Insira um número de telefone válido.';
-    fb.style.color = 'var(--danger)';
-    fb.style.display = 'block';
-    return;
-  }
-  btn.disabled = true;
-  btn.textContent = 'A guardar...';
-  fb.style.display = 'none';
-  try {
-    await apiCall('/perfil', { method: 'PATCH', body: JSON.stringify({ telefone: newTel }) });
-    input.disabled = true;
-    btn.textContent = 'Editar';
-    btn.className = 'btn-edit-tel';
-    btn.onclick = startEditTel;
-    btn.disabled = false;
-    fb.textContent = '✓ Número actualizado com sucesso.';
-    fb.style.color = 'var(--success)';
-    fb.style.display = 'block';
-    setTimeout(() => { fb.style.display = 'none'; }, 3000);
-    showToast('Telefone actualizado!', 'success');
-  } catch (err) {
-    fb.textContent = 'Erro: ' + err.message;
-    fb.style.color = 'var(--danger)';
-    fb.style.display = 'block';
-    btn.disabled = false;
-    btn.textContent = 'Guardar';
-  }
-}
+function openSidebar(id)  { closeAllSidebars(); document.getElementById(id).classList.add('open'); document.getElementById('overlay').classList.add('visible'); }
+function closeSidebar(id) { document.getElementById(id).classList.remove('open'); document.getElementById('overlay').classList.remove('visible'); }
+function closeAllSidebars() { ['cartSidebar','ticketsSidebar','mobileNavSidebar'].forEach(id => document.getElementById(id).classList.remove('open')); document.getElementById('overlay').classList.remove('visible'); }
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// ============================================================
-//  TOAST
-// ============================================================
+function initMap() {
+  leafletMap = L.map('map', { zoomControl: true, scrollWheelZoom: false }).setView([USER_LAT, USER_LNG], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(leafletMap);
+  const userIcon = L.divIcon({ html: `<div style="width:14px;height:14px;border-radius:50%;background:#185FA5;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)"></div>`, iconSize:[14,14], iconAnchor:[7,7], className:'' });
+  userMarker = L.marker([USER_LAT, USER_LNG], { icon: userIcon }).addTo(leafletMap).bindPopup('<strong>A sua localização</strong>');
+}
+
+function clearMapMarkers() { mapMarkers.forEach(m => leafletMap.removeLayer(m)); mapMarkers = []; }
+
+function updateMapMarkers(results) {
+  clearMapMarkers();
+  const colors = { ok: '#198754', baixo: '#E67E22', critico: '#DC3545' };
+  results.forEach((r, i) => {
+    const col  = colors[r.medicamento.stock_nivel] || colors.ok;
+    const icon = L.divIcon({ html: `<div style="background:${col};color:white;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;border:3px solid white;box-shadow:0 3px 10px rgba(0,0,0,.25)">${i+1}</div>`, iconSize:[30,30], iconAnchor:[15,15], className:'' });
+    const marker = L.marker([r.farmacia.lat, r.farmacia.lng], { icon })
+      .addTo(leafletMap)
+      .bindPopup(`<strong>${r.farmacia.nome}</strong><br>${r.medicamento.nome}<br><span style="color:${col};font-weight:700">${r.medicamento.stock_atual} cartelas</span>`);
+    marker.on('click', () => selectCard(i));
+    mapMarkers.push(marker);
+  });
+  if (mapMarkers.length) leafletMap.fitBounds(L.featureGroup(mapMarkers).getBounds().pad(0.15));
+}
+
+const searchEl = document.getElementById('medSearch');
+const suggestBox = document.getElementById('suggestionsBox');
+let suggestTimer;
+
+searchEl.addEventListener('input', () => {
+  clearTimeout(suggestTimer);
+  const v = searchEl.value.trim();
+  if (v.length < 2) { suggestBox.style.display = 'none'; return; }
+  suggestTimer = setTimeout(() => loadSuggestions(v), 300);
+});
+
+async function loadSuggestions(query) {
+  try {
+    const res  = await apiFetch(`/search?q=${encodeURIComponent(query)}&lat=${USER_LAT}&lng=${USER_LNG}&limite=6`);
+    const meds = [...new Set((res.results || []).map(r => r.medicamento.nome))];
+    suggestBox.innerHTML = meds.map(m => `
+      <div class="suggestion-item" onclick="quickSearch('${m.replace(/'/g,"\\'")}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        ${m}
+      </div>`).join('');
+    suggestBox.style.display = meds.length ? 'block' : 'none';
+  } catch { suggestBox.style.display = 'none'; }
+}
+
+function quickSearch(name) { searchEl.value = name; suggestBox.style.display = 'none'; performSearch(); }
+
+async function performSearch() {
+  const q = searchEl.value.trim();
+  if (!q) return;
+  suggestBox.style.display = 'none';
+  showLoadingCards();
+  try {
+    const data = await apiFetch(`/search?q=${encodeURIComponent(q)}&lat=${USER_LAT}&lng=${USER_LNG}`);
+    renderResults(data.results || [], q);
+  } catch (err) {
+    showApiError(err.message);
+  }
+}
+
+function showLoadingCards() {
+  document.getElementById('resultsHeader').style.display = 'none';
+  document.getElementById('resultsList').innerHTML = [1,2,3].map(() => `
+    <div class="loading-card">
+      <div class="skeleton skel-line" style="width:60%"></div>
+      <div class="skeleton skel-line" style="width:40%"></div>
+      <div class="skeleton skel-line" style="width:80%;margin-top:16px"></div>
+    </div>`).join('');
+}
+
+function showApiError(msg) {
+  document.getElementById('resultsList').innerHTML = `<div class="api-error">Erro ao pesquisar: ${msg}</div>`;
+}
+
+function renderResults(results, query) {
+  const list = document.getElementById('resultsList');
+  document.getElementById('resultsHeader').style.display = results.length ? 'flex' : 'none';
+  document.getElementById('resultsTitle').textContent  = `Resultados para "${query}"`;
+  document.getElementById('resultsCount').textContent  = `${results.length} farmácia${results.length !== 1 ? 's' : ''}`;
+  
+  if (!results.length) {
+    list.innerHTML = `<div class="empty-state"><h3>Sem resultados</h3><p>Nenhuma farmácia próxima tem stock de "${query}".</p></div>`;
+    clearMapMarkers(); return;
+  }
+
+  list.innerHTML = results.map((r, i) => {
+    const { medicamento: med, farmacia: ph } = r;
+    const sl = stockLevelInfo(med.stock_nivel);
+    const pct = Math.min(100, (med.stock_atual / 300) * 100);
+    return `
+    <div class="pharmacy-card" id="pcard${i}" onclick="selectCard(${i})">
+      <div class="card-top">
+        <div>
+          <div class="card-name">${ph.nome}</div>
+          <div class="card-address">${ph.morada}</div>
+        </div>
+        <span class="stock-pill ${sl.cls}">${sl.label} (${med.stock_atual})</span>
+      </div>
+      <div class="stock-bar-row">
+        <div class="stock-bar-label"><span>Stock</span><span>${Math.round(pct)}%</span></div>
+        <div class="stock-bar-track"><div class="stock-bar-fill" style="width:${pct}%;background:${sl.color}"></div></div>
+      </div>
+      <div class="card-meta">
+        <span class="meta-chip">📍 ${ph.distancia_km} km</span>
+        <span class="meta-chip" style="color:var(--primary);font-weight:700">${Number(med.preco_mt).toLocaleString()} MT</span>
+      </div>
+      <div class="card-actions">
+        <button class="btn-add" onclick="addToCart(${JSON.stringify(r).replace(/"/g,'&quot;')}, event)">Adicionar</button>
+        <button class="btn-secondary" onclick="openMapsRoute(${ph.lat},${ph.lng},event)">Maps</button>
+      </div>
+    </div>`;
+  }).join('');
+  updateMapMarkers(results);
+}
+
+function selectCard(i) {
+  document.querySelectorAll('.pharmacy-card').forEach((c,j) => c.classList.toggle('selected', j===i));
+  if (mapMarkers[i]) { leafletMap.setView(mapMarkers[i].getLatLng(), 15, {animate:true}); mapMarkers[i].openPopup(); }
+}
+
+function openMapsRoute(lat, lng, e) { 
+    e && e.stopPropagation(); 
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank'); 
+}
+
+function stockLevelInfo(nivel) {
+  if (nivel === 'critico') return { cls: 'stock-critico', label: 'Crítico', color: '#DC3545' };
+  if (nivel === 'baixo')   return { cls: 'stock-baixo',   label: 'Médio',   color: '#E67E22' };
+  return                          { cls: 'stock-ok',      label: 'Alto',    color: '#198754' };
+}
+
+function addToCart(result, e) {
+  e && e.stopPropagation();
+  const { medicamento: med, farmacia: ph } = result;
+  if (cartPhId && cartPhId !== ph.id) {
+    if (!confirm(`Limpar carrinho de "${cartPhName}" e mudar para "${ph.nome}"?`)) return;
+    cart = [];
+  }
+  cartPhId = ph.id; cartPhName = ph.nome;
+  const existing = cart.find(c => c.medicamento_id === med.id);
+  if (existing) { existing.qty++; }
+  else { cart.push({ medicamento_id: med.id, nome: med.nome, qty: 1, preco: Number(med.preco_mt), pharmaId: ph.id, pharmaName: ph.nome, pharmaLat: ph.lat, pharmaLng: ph.lng, pharmaTel: ph.tel, pharmaAddr: ph.morada }); }
+  renderCart();
+  showToast('Adicionado!', 'success');
+}
+
+function renderCart() {
+  const count = cart.reduce((s,c) => s+c.qty, 0);
+  const total = cart.reduce((s,c) => s+c.preco*c.qty, 0);
+  document.getElementById('cartBadge').textContent = count;
+  const body = document.getElementById('cartBody'), footer = document.getElementById('cartFooter');
+  if (!cart.length) {
+    body.innerHTML = `<div class="cart-empty">O carrinho está vazio.</div>`;
+    footer.style.display = 'none'; return;
+  }
+  footer.style.display = 'block';
+  document.getElementById('cartTotal').textContent = total.toLocaleString() + ' MT';
+  body.innerHTML = `<div class="cart-pharma-tag">📍 ${cart[0].pharmaName}</div>` +
+    cart.map((item,idx) => `
+    <div class="cart-item">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.nome}</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQty(${idx},-1)">−</button>
+          <span class="qty-val">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${idx},1)">+</button>
+        </div>
+      </div>
+      <div class="cart-item-total">${(item.preco*item.qty).toLocaleString()} MT</div>
+    </div>`).join('');
+}
+
+function changeQty(idx, delta) {
+  cart[idx].qty += delta;
+  if (cart[idx].qty <= 0) { cart.splice(idx, 1); if (!cart.length) cartPhId = null; }
+  renderCart();
+}
+
+function openCheckoutModal() {
+  if (!cart.length) return;
+  closeSidebar('cartSidebar');
+  const total = cart.reduce((s,c) => s+c.preco*c.qty, 0);
+  document.getElementById('checkoutItemsBox').innerHTML =
+    cart.map(c => `<div class="checkout-item-row"><span>${c.qty}× ${c.nome}</span><span>${(c.preco*c.qty).toLocaleString()} MT</span></div>`).join('') +
+    `<div class="checkout-total-row"><span>Total</span><span>${total.toLocaleString()} MT</span></div>`;
+  openModal('checkoutModal');
+}
+
+function handleFileSelect(input) {
+  const file = input.files[0];
+  if (file && file.size < 5 * 1024 * 1024) {
+    receitaFile = file;
+    document.getElementById('fileUploadBox').classList.add('uploaded');
+    document.getElementById('fileUploadBox').innerHTML = `✓ ${file.name}`;
+  }
+}
+
+async function confirmReserve() {
+  const name = document.getElementById('custName').value.trim();
+  const tel  = document.getElementById('custTel').value.trim();
+  if (!name || !tel) { showToast('Preencha os dados obrigatórios.', 'error'); return; }
+
+  const btn = document.getElementById('btnConfirm');
+  btn.disabled = true; btn.textContent = 'A reservar...';
+
+  try {
+    const formData = new FormData();
+    formData.append('farmacia_id', cart[0].pharmaId);
+    formData.append('cliente_nome', name);
+    formData.append('cliente_tel', tel);
+    formData.append('itens', JSON.stringify(cart.map(c => ({ medicamento_id: c.medicamento_id, nome: c.nome, qty: c.qty }))));
+    if (receitaFile) formData.append('receita', receitaFile);
+
+    const res  = await fetch(`${API_BASE}/reservar`, { method: 'POST', body: formData });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    userTickets.unshift({ code: data.codigo, pharmaName: cart[0].pharmaName, items: [...cart], total: cart.reduce((s,c) => s+c.preco*c.qty, 0), date: new Date().toLocaleString(), status: 'ativo' });
+    cart = []; renderCart(); renderTickets(); updateTicketBadge();
+    closeModal('checkoutModal');
+    showToast(`Reserva ${data.codigo} feita!`, 'success');
+  } catch (err) { showToast(err.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Confirmar Reserva'; }
+}
+
+function renderTickets() {
+  const body = document.getElementById('ticketsBody');
+  if (!userTickets.length) return;
+  document.getElementById('ticketsEmpty').style.display = 'none';
+  body.innerHTML = userTickets.map(t => `
+    <div class="ticket">
+      <div class="ticket-header"><div class="ticket-pharma">${t.pharmaName}</div><div class="ticket-code">${t.code}</div></div>
+      <div class="ticket-body">
+        <div class="ticket-row"><span class="ticket-label">Data</span><span class="ticket-value">${t.date}</span></div>
+        <div class="ticket-items-list">${t.items.map(i => `<div class="ticket-item-row">• ${i.qty}× ${i.nome}</div>`).join('')}</div>
+      </div>
+    </div>`).join('');
+}
+
+function updateTicketBadge() {
+  const badge = document.getElementById('ticketBadge');
+  badge.textContent = userTickets.length;
+  badge.style.display = userTickets.length ? 'flex' : 'none';
+}
+
+async function apiFetch(path, options = {}) {
+  const res = await fetch(`${API_BASE}${path}`, options);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data;
+}
+
 let toastTimer;
 function showToast(msg, type = '') {
-  const t = document.getElementById('toast'), ico = document.getElementById('toastIcon');
+  const t = document.getElementById('toast');
   document.getElementById('toastMsg').textContent = msg;
   t.className = 'show' + (type ? ' toast-' + type : '');
-  ico.innerHTML = type === 'error'
-    ? `<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>`
-    : `<polyline points="20 6 9 17 4 12"/>`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { t.className = ''; }, 3500);
 }
+
+window.addEventListener('load', () => { getLocation(); initMap(); });
 </script>
 </body>
 </html>
