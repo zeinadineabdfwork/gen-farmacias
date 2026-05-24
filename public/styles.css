@@ -52,3 +52,14 @@
 .logo {
   -webkit-user-select: none;
 }
+.logo-markoo{width:60px;height: 80%;fill:white; background-color: #0D1B2A;
+border-radius:10px;display:flex;align-items:center;justify-content:center;
+}
+
+.logo-markoo1{width:90px;height: 90%;fill:white; background-color: #0D1B2A;
+border-radius:10px;display:flex;align-items:center;justify-content:center;
+}
+
+/* responsive */
+@media(max-width:900px){.user-grid{grid-template-columns:1fr;}.map-panel{position:static;}#map{height:260px;}.form-row{grid-template-columns:1fr;}.user-grid section,.map-panel{width:100%;}}
+@media(max-width:600px){header{padding:0 4%;gap:10px;}.logo{font-size:1.2rem;gap:8px;}.logo-mark{width:32px;height:32px;}.header-right,.header-actions{gap:8px;}.mobile-menu-btn{display:flex;}.hero{padding:2.4rem 4% 3.5rem;text-align:left;}.hero h1{font-size:1.85rem;line-height:1.1;}.hero p{font-size:.92rem;max-width:28rem;}.search-wrapper{padding:0 4%;margin-top:-22px;}.search-card{flex-direction:column;align-items:stretch;padding:.9rem;}.btn-search{width:100%;justify-content:center;}.quick-searches{padding:.95rem .3rem 0;overflow-x:auto;flex-wrap:nowrap;-ms-overflow-style:none;scrollbar-width:none;}.quick-searches::-webkit-scrollbar{display:none;}.quick-label,.quick-pill{flex:0 0 auto;}.main-content{margin:1.5rem auto;padding:0 4% 2rem;}.results-header{flex-direction:column;align-items:flex-start;gap:8px;}.card-top,.card-actions{flex-direction:column;align-items:stretch;}.card-actions .btn-secondary,.card-actions .btn-add{width:100%;justify-content:center;}.map-panel-header{flex-direction:column;align-items:flex-start;gap:8px;}#map{height:220px;}.sidebar{width:100%;right:-100%;}.mobile-nav-sidebar{width:min(88vw,320px);left:-100%;}.mobile-nav-sidebar.open{left:0;}.modal{max-height:88vh;}.modal-header,.modal-body,.modal-footer{padding-left:1rem;padding-right:1rem;}#toast{left:1rem;right:1rem;bottom:1rem;max-width:none;}}
