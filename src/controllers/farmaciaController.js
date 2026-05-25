@@ -16,6 +16,16 @@ function formatWeekday(date) {
     .replace(/^\w/, (char) => char.toUpperCase());
 }
 
+function calcularStockNivel(stockAtual, stockMinimo) {
+  const atual = Number(stockAtual);
+  const minimo = Number(stockMinimo) || 100;
+  if (!Number.isFinite(atual)) return 'ok';
+  if (atual <= 0) return 'critico';
+  if (atual <= minimo) return 'critico';
+  if (atual <= minimo * 1.5) return 'baixo';
+  return 'ok';
+}
+
 function normalizarTopProdutos(reservas = []) {
   const counter = new Map();
 
@@ -89,7 +99,7 @@ export const farmaciaController = {
 
         supabaseAdmin
           .from('medicamentos')
-          .select('id, stock_nivel', { count: 'exact' })
+          .select('id, stock_atual, stock_minimo, stock_nivel', { count: 'exact' })
           .eq('farmacia_id', fid)
           .eq('ativo', true),
 
@@ -109,8 +119,8 @@ export const farmaciaController = {
       const totalHoje = reservasHojeData.reduce((sum, reserva) => sum + Number(reserva.total_mt || 0), 0);
       const pendentesHoje = reservasHojeData.filter((reserva) => reserva.status === 'pendente').length;
       const pagasHoje = reservasHojeData.filter((reserva) => reserva.status === 'pago').length;
-      const criticos = medicamentosData.filter((med) => med.stock_nivel === 'critico').length;
-      const baixos = medicamentosData.filter((med) => med.stock_nivel === 'baixo').length;
+      const criticos = medicamentosData.filter((med) => calcularStockNivel(med.stock_atual, med.stock_minimo) === 'critico').length;
+      const baixos = medicamentosData.filter((med) => calcularStockNivel(med.stock_atual, med.stock_minimo) === 'baixo').length;
 
       const dailyMap = new Map();
       for (let offset = 0; offset < 7; offset += 1) {

@@ -6,6 +6,16 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { medicamentoSchema } from '../utils/validators.js';
 
+function calcularStockNivel(stockAtual, stockMinimo = 100) {
+  const atual = Number(stockAtual);
+  const minimo = Number(stockMinimo) || 100;
+  if (!Number.isFinite(atual)) return 'ok';
+  if (atual <= 0) return 'critico';
+  if (atual <= minimo) return 'critico';
+  if (atual <= minimo * 1.5) return 'baixo';
+  return 'ok';
+}
+
 export const stockService = {
 
   // ── LISTAR todos os medicamentos de uma farmácia ──────────────────────────
@@ -20,7 +30,10 @@ export const stockService = {
 
     const { data, error } = await query;
     if (error) throw new AppError('Erro ao carregar medicamentos.', 500);
-    return data;
+    return (data || []).map((med) => ({
+      ...med,
+      stock_nivel: calcularStockNivel(med.stock_atual, med.stock_minimo),
+    }));
   },
 
   // ── CRIAR novo medicamento ────────────────────────────────────────────────
@@ -30,9 +43,15 @@ export const stockService = {
       throw new AppError('Dados inválidos.', 400, parsed.error.format());
     }
 
+    const dataToInsert = {
+      ...parsed.data,
+      farmacia_id: farmaciaId,
+      stock_nivel: calcularStockNivel(parsed.data.stock_atual, parsed.data.stock_minimo),
+    };
+
     const { data, error } = await supabaseAdmin
       .from('medicamentos')
-      .insert({ ...parsed.data, farmacia_id: farmaciaId })
+      .insert(dataToInsert)
       .select()
       .single();
 
@@ -50,9 +69,27 @@ export const stockService = {
       throw new AppError('Dados inválidos.', 400, parsed.error.format());
     }
 
+    const { data: existing, error: existingError } = await supabaseAdmin
+      .from('medicamentos')
+      .select('stock_atual, stock_minimo')
+      .eq('id', id)
+      .eq('farmacia_id', farmaciaId)
+      .single();
+
+    if (existingError || !existing) {
+      throw new AppError('Erro ao carregar medicamento para atualização.', 500);
+    }
+
+    const stockAtual = parsed.data.stock_atual !== undefined ? parsed.data.stock_atual : existing.stock_atual;
+    const stockMinimo = parsed.data.stock_minimo !== undefined ? parsed.data.stock_minimo : existing.stock_minimo;
+    const updatedData = {
+      ...parsed.data,
+      stock_nivel: calcularStockNivel(stockAtual, stockMinimo),
+    };
+
     const { data, error } = await supabaseAdmin
       .from('medicamentos')
-      .update(parsed.data)
+      .update(updatedData)
       .eq('id', id)
       .eq('farmacia_id', farmaciaId)
       .select()
@@ -83,11 +120,16 @@ export const stockService = {
       .select('id, nome, dosagem, stock_atual, stock_minimo, stock_nivel')
       .eq('farmacia_id', farmaciaId)
       .eq('ativo', true)
-      .in('stock_nivel', ['critico', 'baixo'])
       .order('stock_atual', { ascending: true });
 
     if (error) throw new AppError('Erro ao carregar alertas.', 500);
-    return data;
+
+    return (data || [])
+      .map((med) => ({
+        ...med,
+        stock_nivel: calcularStockNivel(med.stock_atual, med.stock_minimo),
+      }))
+      .filter((med) => ['critico', 'baixo'].includes(med.stock_nivel));
   },
 
   // ── VERIFICAR que o medicamento pertence à farmácia ───────────────────────

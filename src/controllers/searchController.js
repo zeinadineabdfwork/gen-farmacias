@@ -41,8 +41,7 @@ function normalizarTexto(value = '') {
     .trim();
 }
 
-function calcularStockNivel(stockAtual, stockMinimo, nivelActual) {
-  if (nivelActual) return nivelActual;
+function calcularStockNivel(stockAtual, stockMinimo) {
   if (!Number.isFinite(stockAtual)) return 'ok';
   if (!Number.isFinite(stockMinimo) || stockMinimo <= 0) {
     return stockAtual <= 0 ? 'critico' : 'ok';
